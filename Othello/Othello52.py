@@ -79,7 +79,11 @@ def move(board, pos, token1, token2):
                 break
     return ''.join(result)
 
+cache = {}
 def negamax(board, token1, token2, path):
+    if (board, token1) in cache:
+        score, path2 = cache[(board, token1)]
+        return score, path2
     p1 = findpossible(board, token1, token2)
     if not p1:
         p2 = findpossible(board, token2, token1)
@@ -102,6 +106,7 @@ def negamax(board, token1, token2, path):
         if maxi < totalmoves[i]:
             maxi = totalmoves[i]
             moves = i
+    cache[(board, token1)] = (maxi, moves)
     return maxi, moves
 
 output(puzzle, token1, token2)
