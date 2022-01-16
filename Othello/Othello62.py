@@ -1,3 +1,9 @@
+import sys; args = sys.argv[1:]
+import time
+puzzle = args[0]
+token1 = args[1]
+token2 = ['x', 'o'][token1 == 'x']
+
 constraints = {}
 for i in range(64):
     constraints[i] = []
@@ -14,25 +20,8 @@ for i in range(64):
         if len(j) > 1:
             constraints[i].append(j)
 
-def valid(board, pos, t1, t2):
-    for i in constraints[pos]:
-        flag = False
-        for j in i:
-            if board[j] == t2:
-                flag = True
-            elif board[j] == t1 and flag:
-                return True
-            else:
-                break
-    return False
-
-def findpossible(board, t1, t2):
-    possible = []
-    for i in range(64):
-        if board[i] == '.' and valid(board, i, t1, t2):
-            possible.append(i)
-    return possible
-
+cx = {0:{1,8,9},7:{6,14,15},56:{48,49,57},63:{54,55,62}}
+corner = {0,7,56,63}
 weights = {
     0:99,7:99,56:99,63:99,
     1:-8,6:-8,8:-8,15:-8,48:-8,55:-8,57:-8,62:-8,
@@ -54,38 +43,47 @@ for i in edgenums:
         if i in j:
             edgedict[i].append({*j} - {i})
 
-def safeedgemove(board, pos):
-    for i in edgedict[pos]:
+def output(board, t1, t2):
+    possible = findpossible(board, t1, t2)
+    temp = list(board)
+    for i in possible:
+        temp[i] = '*'
+    result = ''.join(temp)
+    for i in range(8):
+        print(result[i * 8:i * 8 + 8])
+    
+    print()
+    
+    print(board, str(board.count('x')) +  '/' + str(board.count('o')))
+    if possible: print('Possible moves for ' + t1 + ':', possible)
+    else:
+        possible = findpossible(board, t2, t1)
+        if possible: print('Possible moves for ' + t2 + ':', possible)
+    
+    print()
+
+    score, path = alphabeta(puzzle, token1, token2, -64, 64)
+    path = ' '.join(path.split(' ')[::-1])
+    print('score:', score,', path', path)
+
+def valid(board, pos, t1, t2):
+    for i in constraints[pos]:
+        flag = False
         for j in i:
-            if board[j] == '.':
-                return False
-    return True
+            if board[j] == t2:
+                flag = True
+            elif board[j] == t1 and flag:
+                return True
+            else:
+                break
+    return False
 
-def findmove(board, token1, token2):
-    if board.count('.') <= 13:
-        nextmove = alphabeta(board, token1, token2, -64, 64)[1].split(' ')[0]
-        if nextmove: return int(nextmove)
-        return -1
-    pos = findpossible(board, token1, token2)
-    if not pos:
-        return -1
-    corner = [0, 7, 56, 63]
-    for i in corner:
-        if i in pos:
-            return i
-    for i in edgenums:
-        if i in pos and safeedgemove(board, i):
-            return i
-
-    mx = 0
-    val = -1000000
-    for k in pos:
-        newboard = move(board, k, token1, token2)
-        newval = evaluate(newboard, token1, token2)
-        if newval > val:
-            mx = k
-            val = newval
-    return mx
+def findpossible(board, t1, t2):
+    possible = []
+    for i in range(64):
+        if board[i] == '.' and valid(board, i, t1, t2):
+            possible.append(i)
+    return possible
 
 def move(board, pos, token1, token2):
     result = list(board)
@@ -105,8 +103,13 @@ def move(board, pos, token1, token2):
                 break
     return ''.join(result)
 
-cx = {0:{1,8,9},7:{6,14,15},56:{48,49,57},63:{54,55,62}}
-corner = {0,7,56,63}
+def safeedgemove(board, pos):
+    for i in edgedict[pos]:
+        for j in i:
+            if board[j] == '.':
+                return False
+    return True
+
 def evaluate(board, token1, token2):
     total = sum([weights[i] for i in range(64) if board[i] == token1])
     cxtotal = {*findpossible(board, token2, token1)}
@@ -120,11 +123,24 @@ def evaluate(board, token1, token2):
     
     return total - total1 * 100
 
-def quickMove(puzzle, token1):
-    tokens = ['x','o']
-    tokens.remove(token1)
-    token2 = tokens[0]
-    return findmove(puzzle, token1, token2)
+def weightedpos(board, pos, token1, token2):
+    result = []
+    for i in corner:
+        if i in pos:
+            pos.remove(i)
+            result.append(i)
+    for i in edgenums:
+        if i in pos and safeedgemove(board, i):
+            pos.remove(i)
+            result.append(i)
+    temp = []
+    for k in pos:
+        newboard = move(board, k, token1, token2)
+        newval = evaluate(newboard, token1, token2)
+        temp.append((newval, k))
+    temp2 = [i for j,i in temp]
+    result = result + sorted(temp2)[::-1]
+    return result
 
 cache = {}
 def alphabeta(board, token1, token2, alpha, beta):
@@ -156,5 +172,9 @@ def alphabeta(board, token1, token2, alpha, beta):
     else:
         maxi, new = alphabeta(board, token2, token1, -1 * beta, -1 * alpha)
         return -maxi, '-1 ' + new
+
     return newalpha, returnpath
+
+output(puzzle, token1, token2)
+print(time.process_time())
 #Alexander Yao, Period 4, 2023
