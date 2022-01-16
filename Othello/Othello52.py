@@ -1,4 +1,5 @@
 import sys; args = sys.argv[1:]
+import time
 puzzle = args[0]
 token1 = args[1]
 token2 = ['x', 'o'][token1 == 'x']
@@ -38,7 +39,8 @@ def output(board, t1, t2):
     
     print()
 
-    score, path = negamax(puzzle, token1, token2, '')
+    score, path, k = negamax(puzzle, token1, token2, '')
+    path += k
     path = ' '.join(path.split(' ')[::-1])
     print('score:', score,', path', path)
 
@@ -83,31 +85,33 @@ cache = {}
 def negamax(board, token1, token2, path):
     if (board, token1) in cache:
         score, path2 = cache[(board, token1)]
-        return score, path2
+        return score, path, path2
     p1 = findpossible(board, token1, token2)
     if not p1:
         p2 = findpossible(board, token2, token1)
         if not p2:
-            return board.count(token1) - board.count(token2), path
+            k = board.count(token1) - board.count(token2)
+            cache[(board, token1)] = k, ''
+            return k, path, ''
     
     totalmoves = {}
     if p1:
         for i in p1:
-            newpath = path + ' ' + str(i)
-            score, newpath = negamax(move(board, i, token1, token2), token2, token1, newpath)
-            totalmoves[newpath] = -1 * score
+            score, oldpath, newpath = negamax(move(board, i, token1, token2), token2, token1, path + ' ' + str(i))
+            totalmoves[str(i) + ' ' + newpath] = -1 * score
     else:
-        maxi, k = negamax(board, token2, token1, path + ' -1')
-        return -maxi, k
+        maxi, old, new = negamax(board, token2, token1, path + ' -1')
+        return -maxi, path, '-1 ' + new
 
     maxi = -64
-    moves = 0
+    nextmoves = 0
     for i in totalmoves:
         if maxi < totalmoves[i]:
             maxi = totalmoves[i]
-            moves = i
-    cache[(board, token1)] = (maxi, moves)
-    return maxi, moves
+            nextmoves = i
+    cache[(board, token1)] = maxi, nextmoves
+    return maxi, path, nextmoves
 
 output(puzzle, token1, token2)
+print(time.process_time())
 #Alexander Yao, Period 4, 2023

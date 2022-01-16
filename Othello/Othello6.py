@@ -62,7 +62,8 @@ def output(board, t1, t2):
     
     print()
 
-    score, path = negamax(puzzle, token1, token2, '', -64, 64)
+    score, path, k = alphabeta(puzzle, token1, token2, '', -64, 64)
+    path += k
     path = ' '.join(path.split(' ')[::-1])
     print('score:', score,', path', path)
 
@@ -142,33 +143,40 @@ def weightedpos(board, pos, token1, token2):
     result = result + sorted(temp2)[::-1]
     return result
 
-def negamax(board, token1, token2, path, alpha, beta):
+cache = {}
+def alphabeta(board, token1, token2, path, alpha, beta):
+    if (board, token1) in cache:
+        score, path2 = cache[(board, token1)]
+        return score, path, path2
     p1 = findpossible(board, token1, token2)
     if not p1:
         p2 = findpossible(board, token2, token1)
         if not p2:
-            return board.count(token1) - board.count(token2), path
+            k = board.count(token1) - board.count(token2)
+            cache[(board, token1)] = k, ''
+            return k, path, ''
     
-    k = ''
     value = -64
     newalpha = alpha
     returnpath = ''
+    newpath = 0
     if p1:
         for i in p1:
-            newpath = path + ' ' + str(i)
-            score, newpath = negamax(move(board, i, token1, token2), token2, token1, newpath, -1 * beta, -1 * alpha)
+            score, opath, npath = alphabeta(move(board, i, token1, token2), token2, token1, path + ' ' + str(i), -1 * beta, -1 * alpha)
             value = max(value, -score)
             if newalpha < value:
                 newalpha = value
-                returnpath = newpath
+                returnpath = opath
+                newpath = npath
             if newalpha >= beta:
                 returnpath = ''
                 break
+        cache[(board, token1)] = value, newpath
     else:
-        maxi, k = negamax(board, token2, token1, path + ' -1', -1 * beta, -1 * alpha)
-        return -maxi, k
+        maxi, old, new = alphabeta(board, token2, token1, path + ' -1', -1 * beta, -1 * alpha)
+        return -maxi, path, '-1 ' + new
 
-    return newalpha, returnpath
+    return newalpha, returnpath, newpath
 
 output(puzzle, token1, token2)
 print(time.process_time())
