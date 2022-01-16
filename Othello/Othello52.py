@@ -104,7 +104,7 @@ def negamax(board, token1, token2, path):
         return -maxi, path, '-1 ' + new
 
     maxi = -64
-    nextmoves = 0
+    nextmoves = ''
     for i in totalmoves:
         if maxi < totalmoves[i]:
             maxi = totalmoves[i]

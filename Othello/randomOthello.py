@@ -1,5 +1,5 @@
 import random
-from Othello4 import quickMove
+from Othello import quickMove
 
 constraints = {}
 for i in range(64):

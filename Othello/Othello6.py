@@ -159,7 +159,7 @@ def alphabeta(board, token1, token2, path, alpha, beta):
     value = -64
     newalpha = alpha
     returnpath = ''
-    newpath = 0
+    newpath = ''
     if p1:
         for i in p1:
             score, opath, npath = alphabeta(move(board, i, token1, token2), token2, token1, path + ' ' + str(i), -1 * beta, -1 * alpha)

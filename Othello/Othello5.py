@@ -97,7 +97,7 @@ def negamax(board, token1, token2, path):
         return -maxi, k
 
     maxi = -64
-    moves = 0
+    moves = ''
     for i in totalmoves:
         if maxi < totalmoves[i]:
             maxi = totalmoves[i]

@@ -63,7 +63,7 @@ def safeedgemove(board, pos):
 
 def findmove(board, token1, token2):
     if board.count('.') <= 10:
-        nextmove = negamax(board, token1, token2, '')[1].split(' ')[0]
+        nextmove = alphabeta(board, token1, token2, '', -64, 64)[1].split(' ')[0]
         if nextmove: return int(nextmove)
         return -1
     pos = findpossible(board, token1, token2)
@@ -126,29 +126,41 @@ def quickMove(puzzle, token1):
     token2 = tokens[0]
     return findmove(puzzle, token1, token2)
 
-def negamax(board, token1, token2, path):
+cache = {}
+def alphabeta(board, token1, token2, path, alpha, beta):
+    if (board, token1) in cache:
+        score, path2 = cache[(board, token1)]
+        return score, path, path2
     p1 = findpossible(board, token1, token2)
     if not p1:
         p2 = findpossible(board, token2, token1)
         if not p2:
-            return board.count(token1) - board.count(token2), path
+            k = board.count(token1) - board.count(token2)
+            cache[(board, token1)] = k, ''
+            return k, path, ''
     
-    totalmoves = {}
-    k = ''
+    value = -64
+    newalpha = alpha
+    returnpath = ''
+    newpath = ''
     if p1:
         for i in p1:
-            newpath = path + ' ' + str(i)
-            score, newpath = negamax(move(board, i, token1, token2), token2, token1, newpath)
-            totalmoves[newpath] = -1 * score
+            score, opath, npath = alphabeta(move(board, i, token1, token2), token2, token1, path + ' ' + str(i), -1 * beta, -1 * alpha)
+            value = max(value, -score)
+            if newalpha < value:
+                newalpha = value
+                returnpath = opath
+                newpath = npath
+            if newalpha >= beta:
+                returnpath = ''
+                break
+        cache[(board, token1)] = value, newpath
     else:
-        maxi, k = negamax(board, token2, token1, path + ' -1')
-        return -maxi, k
+        try:
+            maxi, old, new = alphabeta(board, token2, token1, path + ' -1', -1 * beta, -1 * alpha)
+            return -maxi, path, '-1 ' + new
+        except:
+            print(board, token1)
 
-    maxi = -64
-    moves = 0
-    for i in totalmoves:
-        if maxi < totalmoves[i]:
-            maxi = totalmoves[i]
-            moves = i
-    return maxi, moves
+    return newalpha, returnpath, newpath
 #Alexander Yao, Period 4, 2023
