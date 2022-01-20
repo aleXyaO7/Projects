@@ -1,3 +1,6 @@
+import sys; args = sys.argv[1:]
+# Alexander Yao, pd 4
+LIMIT_NM = 11
 constraints = {}
 for i in range(64):
     constraints[i] = []
@@ -13,6 +16,29 @@ for i in range(64):
     for j in lst:
         if len(j) > 1:
             constraints[i].append(j)
+
+def output(board, t1, t2):
+    possible = findpossible(board, t1, t2)
+    temp = list(board)
+    for i in possible:
+        temp[i] = '*'
+    result = ''.join(temp)
+    for i in range(8):
+        print(result[i * 8:i * 8 + 8])
+    
+    print()
+    
+    print(board, str(board.count('x')) +  '/' + str(board.count('o')))
+    if possible: print('Possible moves for ' + t1 + ':', possible)
+    else:
+        possible = findpossible(board, t2, t1)
+        if possible: print('Possible moves for ' + t2 + ':', possible)
+    
+    print()
+
+    score, path = alphabeta(board, t1, t2, -64, 64)
+    path = ' '.join(path.split(' ')[::-1])
+    print('score:', score,', path', path)
 
 def valid(board, pos, t1, t2):
     for i in constraints[pos]:
@@ -62,7 +88,7 @@ def safeedgemove(board, pos):
     return True
 
 def findmove(board, token1, token2):
-    if board.count('.') <= 13:
+    if board.count('.') < LIMIT_NM:
         nextmove = alphabeta(board, token1, token2, -64, 64)[1].split(' ')[0]
         if nextmove: return int(nextmove)
         return -1
@@ -120,6 +146,26 @@ def evaluate(board, token1, token2):
     
     return total - total1 * 100
 
+def weightedpos(board, pos, token1, token2):
+    result = []
+    for i in corner:
+        if i in pos:
+            pos.remove(i)
+            result.append(i)
+    for i in edgenums:
+        if i in pos and safeedgemove(board, i):
+            pos.remove(i)
+            result.append(i)
+    temp = []
+    for k in pos:
+        newboard = move(board, k, token1, token2)
+        newval = evaluate(newboard, token1, token2)
+        temp.append((newval, k))
+    temp.sort()
+    temp2 = [i for j,i in temp[::-1]]
+    result = result + temp2
+    return result
+
 def quickMove(puzzle, token1):
     tokens = ['x','o']
     tokens.remove(token1)
@@ -143,13 +189,14 @@ def alphabeta(board, token1, token2, alpha, beta):
     newalpha = alpha
     returnpath = ''
     if p1:
+        p1 = weightedpos(board, p1, token1, token2)
         for i in p1:
             score, npath = alphabeta(move(board, i, token1, token2), token2, token1, -1 * beta, -1 * alpha)
             value = max(value, -score)
             if newalpha < value:
                 newalpha = value
                 returnpath = str(i) + ' ' + npath
-            if newalpha >= beta:
+            if newalpha > beta:
                 returnpath = ''
                 break
         cache[(board, token1)] = value, returnpath
@@ -157,4 +204,11 @@ def alphabeta(board, token1, token2, alpha, beta):
         maxi, new = alphabeta(board, token2, token1, -1 * beta, -1 * alpha)
         return -maxi, '-1 ' + new
     return newalpha, returnpath
+
+def main():
+    if args:
+        puzzle = args[0]
+        token1 = args[1]
+        token2 = ['x', 'o'][token1 == 'x']
+        output(puzzle, token1, token2)
 #Alexander Yao, Period 4, 2023

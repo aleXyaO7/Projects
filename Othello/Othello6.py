@@ -144,40 +144,40 @@ def weightedpos(board, pos, token1, token2):
     return result
 
 cache = {}
-def alphabeta(board, token1, token2, path, alpha, beta):
+def alphabeta(board, token1, token2, alpha, beta):
     if (board, token1) in cache:
         score, path2 = cache[(board, token1)]
-        return score, path, path2
+        return score, path2
     p1 = findpossible(board, token1, token2)
     if not p1:
         p2 = findpossible(board, token2, token1)
         if not p2:
             k = board.count(token1) - board.count(token2)
             cache[(board, token1)] = k, ''
-            return k, path, ''
+            return k, ''
     
     value = -64
     newalpha = alpha
     returnpath = ''
-    newpath = ''
     if p1:
+        p1 = weightedpos(board, p1, token1, token2)
         for i in p1:
-            score, opath, npath = alphabeta(move(board, i, token1, token2), token2, token1, path + ' ' + str(i), -1 * beta, -1 * alpha)
+            score, npath = alphabeta(move(board, i, token1, token2), token2, token1, -1 * beta, -1 * alpha)
             value = max(value, -score)
             if newalpha < value:
                 newalpha = value
-                returnpath = opath
-                newpath = npath
+                returnpath = str(i) + ' ' + npath
             if newalpha >= beta:
                 returnpath = ''
                 break
-        cache[(board, token1)] = value, newpath
+        cache[(board, token1)] = value, returnpath
     else:
-        maxi, old, new = alphabeta(board, token2, token1, path + ' -1', -1 * beta, -1 * alpha)
-        return -maxi, path, '-1 ' + new
+        maxi, new = alphabeta(board, token2, token1, -1 * beta, -1 * alpha)
+        return -maxi, '-1 ' + new
 
-    return newalpha, returnpath, newpath
+    return newalpha, returnpath
 
 output(puzzle, token1, token2)
+print(cache)
 print(time.process_time())
 #Alexander Yao, Period 4, 2023

@@ -143,17 +143,12 @@ def weightedpos(board, pos, token1, token2):
     result = result + temp2
     return result
 
-cache = {}
 def alphabeta(board, token1, token2, alpha, beta):
-    if (board, token1) in cache:
-        score, path2 = cache[(board, token1)]
-        return score, path2
     p1 = findpossible(board, token1, token2)
     if not p1:
         p2 = findpossible(board, token2, token1)
         if not p2:
             k = board.count(token1) - board.count(token2)
-            cache[(board, token1)] = k, ''
             return k, ''
     
     value = -64
@@ -170,7 +165,6 @@ def alphabeta(board, token1, token2, alpha, beta):
             if newalpha >= beta:
                 returnpath = ''
                 break
-        cache[(board, token1)] = value, returnpath
     else:
         maxi, new = alphabeta(board, token2, token1, -1 * beta, -1 * alpha)
         return -maxi, '-1 ' + new

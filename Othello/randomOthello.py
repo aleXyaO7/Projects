@@ -1,5 +1,8 @@
 import random
 from Othello import quickMove
+import time
+
+LIMIT_NM = 13 #change this if you wish
 
 constraints = {}
 for i in range(64):
@@ -19,6 +22,8 @@ for i in range(64):
 
 rcount = 0
 pcount = 0
+scores = []
+games = []
 default = '.' * 27 + 'ox' + '.' * 6 + 'xo' + '.' * 27
 
 def format(board):
@@ -100,12 +105,13 @@ def move(bd, token1, token2):
                 two = 64 - one
             rcount += one
             pcount += two
+            scores.append(two - one)
             return board, -1
         else:
             board = placemove(board, playermove, token2, token1)
     return board, 0
 
-rand = random.randint(0, 500)
+rand = random.randint(0, 100)
 
 for k in range(rand):
     token1 = 'x'
@@ -115,7 +121,7 @@ for k in range(rand):
         puzzle, i = move(puzzle, token1, token2)
         if i == -1:
             break
-for k in range(500 - rand):
+for k in range(100 - rand):
     token1 = 'o'
     token2 = 'x'
     puzzle = default
@@ -127,4 +133,10 @@ for k in range(500 - rand):
         if i == -1:
             break
 
-print(pcount/(rcount + pcount))
+for i in range(10):
+    print(scores[i * 10:i * 10 + 10])
+print('My Tokens:', pcount, ';', 'Opponent Tokens:', rcount)
+print('LimitAB:', LIMIT_NM)
+print('Score:', pcount/(rcount + pcount))
+print('Time:', time.process_time())
+
