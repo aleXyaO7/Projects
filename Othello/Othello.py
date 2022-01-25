@@ -1,6 +1,6 @@
 import sys; args = sys.argv[1:]
 # Alexander Yao, pd 4
-LIMIT_NM = 14
+LIMIT_NM = 1
 
 import random, time
 
@@ -240,12 +240,12 @@ def tournamentmove(bd, token1, token2, result):         #Simulates a tournament 
             board = move(board, playermove, token2, token1)
         else: result += '-1'
     else:
-        result += '-1'
         # playermove = int(subprocess.check_output([sys.executable, filename, board, token2])[:-2])
         playermove = quickMove(board, token2)
         if playermove == -1:
             return board, -1, result
         else:
+            result += '-1'
             board = move(board, playermove, token2, token1)
             m = str(playermove)
             if len(m) == 1: m = '_' + m
@@ -273,6 +273,8 @@ def tournament():                               #Simulates tournament
                 rcount += one
                 pcount += two
                 scores.append(two - one)
+                while result[-2:] == '-1':
+                    result = result[:-2]
                 games.append((two - one, result, 'o', k))
                 result = ''
                 break
