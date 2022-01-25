@@ -1,6 +1,9 @@
 import sys; args = sys.argv[1:]
 # Alexander Yao, pd 4
-LIMIT_NM = 11
+LIMIT_NM = 14
+
+import random, time
+
 constraints = {}
 for i in range(64):
     constraints[i] = []
@@ -17,7 +20,9 @@ for i in range(64):
         if len(j) > 1:
             constraints[i].append(j)
 
-def output(board, t1, t2):
+default = '.' * 27 + 'ox' + '.' * 6 + 'xo' + '.' * 27
+
+def output(board, t1, t2):      #Snapshot
     possible = findpossible(board, t1, t2)
     temp = list(board)
     for i in possible:
@@ -35,12 +40,15 @@ def output(board, t1, t2):
         if possible: print('Possible moves for ' + t2 + ':', possible)
     
     print()
+    print('Othello4 choice:', findmove(board, t1, t2))
+    print()
 
-    score, path = alphabeta(board, t1, t2, -64, 64)
-    path = ' '.join(path.split(' ')[::-1])
-    print('score:', score,', path', path)
+    if board.count('.') < LIMIT_NM:
+        score, path = alphabeta(board, t1, t2, -64, 64)
+        path = ' '.join(path.split(' ')[::-1])
+        print('score:', score,', path', path)
 
-def valid(board, pos, t1, t2):
+def valid(board, pos, t1, t2):      #Checks if move is valid
     for i in constraints[pos]:
         flag = False
         for j in i:
@@ -52,7 +60,7 @@ def valid(board, pos, t1, t2):
                 break
     return False
 
-def findpossible(board, t1, t2):
+def findpossible(board, t1, t2):    #Finds valid moves
     possible = []
     for i in range(64):
         if board[i] == '.' and valid(board, i, t1, t2):
@@ -80,14 +88,14 @@ for i in edgenums:
         if i in j:
             edgedict[i].append({*j} - {i})
 
-def safeedgemove(board, pos):
+def safeedgemove(board, pos):           #Othello4 method
     for i in edgedict[pos]:
         for j in i:
             if board[j] == '.':
                 return False
     return True
 
-def findmove(board, token1, token2):
+def findmove(board, token1, token2):        #Othello4's findmove
     if board.count('.') < LIMIT_NM:
         nextmove = alphabeta(board, token1, token2, -64, 64)[1].split(' ')[0]
         if nextmove: return int(nextmove)
@@ -113,7 +121,7 @@ def findmove(board, token1, token2):
             val = newval
     return mx
 
-def move(board, pos, token1, token2):
+def move(board, pos, token1, token2):       #Makes a move
     result = list(board)
     result[pos] = token1
     for i in constraints[pos]:
@@ -133,7 +141,7 @@ def move(board, pos, token1, token2):
 
 cx = {0:{1,8,9},7:{6,14,15},56:{48,49,57},63:{54,55,62}}
 corner = {0,7,56,63}
-def evaluate(board, token1, token2):
+def evaluate(board, token1, token2):        #Evaluates how good a position is
     total = sum([weights[i] for i in range(64) if board[i] == token1])
     cxtotal = {*findpossible(board, token2, token1)}
     for i in cx:
@@ -146,7 +154,7 @@ def evaluate(board, token1, token2):
     
     return total - total1 * 100
 
-def weightedpos(board, pos, token1, token2):
+def weightedpos(board, pos, token1, token2):        #Weights the positions depending on their evaluation
     result = []
     for i in corner:
         if i in pos:
@@ -166,49 +174,181 @@ def weightedpos(board, pos, token1, token2):
     result = result + temp2
     return result
 
-def quickMove(puzzle, token1):
+def quickMove(puzzle, token1):          #Quickmove method
     tokens = ['x','o']
     tokens.remove(token1)
     token2 = tokens[0]
     return findmove(puzzle, token1, token2)
 
-cache = {}
 def alphabeta(board, token1, token2, alpha, beta):
-    if (board, token1) in cache:
-        score, path2 = cache[(board, token1)]
-        return score, path2
     p1 = findpossible(board, token1, token2)
     if not p1:
         p2 = findpossible(board, token2, token1)
         if not p2:
             k = board.count(token1) - board.count(token2)
-            cache[(board, token1)] = k, ''
             return k, ''
     
-    value = -64
-    newalpha = alpha
-    returnpath = ''
+    nextmoves = ''
     if p1:
         p1 = weightedpos(board, p1, token1, token2)
         for i in p1:
-            score, npath = alphabeta(move(board, i, token1, token2), token2, token1, -1 * beta, -1 * alpha)
-            value = max(value, -score)
-            if newalpha < value:
-                newalpha = value
-                returnpath = str(i) + ' ' + npath
-            if newalpha > beta:
-                returnpath = ''
-                break
-        cache[(board, token1)] = value, returnpath
+            score, newpath = alphabeta(move(board, i, token1, token2), token2, token1, -1 * beta, -1 * alpha)
+            score = -score
+            if score >= beta:
+                return score, ''
+            if score <= alpha:
+                continue
+            alpha = score
+            nextmoves = str(i) + ' ' + newpath
     else:
         maxi, new = alphabeta(board, token2, token1, -1 * beta, -1 * alpha)
         return -maxi, '-1 ' + new
-    return newalpha, returnpath
+
+    return alpha, nextmoves
+
+def endgame(board, token1, token2):             #Checks if game is over
+    one, two = 0, 0
+    for i in board:
+        if i == token1:
+            one += 1
+        elif i == token2:
+            two += 1
+    return one, two
+
+def randommove(board, token1, token2):          #Makes random move
+    pos = findpossible(board, token1, token2)
+    if not pos:
+        return -1
+    rand = random.randint(0, len(pos) - 1)
+    return pos[rand]
+
+def tournamentmove(bd, token1, token2, result):         #Simulates a tournament game
+    result = result + ''
+    board = str(bd)
+    randmove = randommove(board, token1, token2)
+    if randmove != -1:
+        board = move(board, randmove, token1, token2)
+        m = str(randmove)
+        if len(m) == 1: m = '_' + m
+        result += m
+        #playermove = int(subprocess.check_output([sys.executable, filename, board, token2])[:-2])
+        playermove = quickMove(board, token2)
+        if playermove != -1:
+            m = str(playermove)
+            if len(m) == 1: m = '_' + m
+            result += m
+            board = move(board, playermove, token2, token1)
+        else: result += '-1'
+    else:
+        result += '-1'
+        # playermove = int(subprocess.check_output([sys.executable, filename, board, token2])[:-2])
+        playermove = quickMove(board, token2)
+        if playermove == -1:
+            return board, -1, result
+        else:
+            board = move(board, playermove, token2, token1)
+            m = str(playermove)
+            if len(m) == 1: m = '_' + m
+            result += m
+    return board, 0, result
+
+def tournament():                               #Simulates tournament
+    rcount, pcount = 0, 0
+    scores = []
+    games = []
+    result = ''
+    rand = random.randint(0, 100)
+    for k in range(rand):
+        token1 = 'x'
+        token2 = 'o'
+        puzzle = default
+        while True:
+            puzzle, i, result = tournamentmove(puzzle, token1, token2, result)
+            if i == -1:
+                one, two = endgame(puzzle, token1, token2)
+                if one > two:
+                    one = 64 - two
+                elif two > one:
+                    two = 64 - one
+                rcount += one
+                pcount += two
+                scores.append(two - one)
+                games.append((two - one, result, 'o', k))
+                result = ''
+                break
+    for k in range(100 - rand):
+        token1 = 'o'
+        token2 = 'x'
+        puzzle = default
+        #playermove = int(subprocess.check_output([sys.executable, filename, puzzle, token2])[:-2])
+        playermove = quickMove(puzzle, token2)
+        puzzle = move(puzzle, playermove, token2, token1)
+        result += str(playermove)
+        while True:
+            puzzle, i, result = tournamentmove(puzzle, token1, token2, result)
+            if i == -1:
+                one, two = endgame(puzzle, token1, token2)
+                if one > two:
+                    one = 64 - two
+                elif two > one:
+                    two = 64 - one
+                rcount += one
+                pcount += two
+                scores.append(str(two - one))
+                games.append((two - one, result, 'x', k + rand))
+                result = ''
+                break
+    
+    for i in range(10):
+        for j in range(10):
+            print(scores[i * 10 + j], end = ' ')
+        print()
+    print()
+    print('My Tokens:', pcount, ';', 'Opponent Tokens:', rcount)
+    print('Score:', pcount/(rcount + pcount)*100, '%')
+    print('NM/AB Limit:', LIMIT_NM)
+    print()
+
+    games.sort()
+    score, path, token, num = games[0]
+    print('Game', num, ':', token, '=>', score, ':')
+    print(path)
+    score, path, token, num = games[1]
+    print('Game', num, ':', token, '=>', score, ':')
+    print(path)
+
+    print()
+    print('Elapsed time:', time.process_time(), 's')
 
 def main():
     if args:
-        puzzle = args[0]
-        token1 = args[1]
-        token2 = ['x', 'o'][token1 == 'x']
-        output(puzzle, token1, token2)
+        if len(args[0]) == 64:
+            puzzle = args[0]
+            token1 = args[1]
+            token2 = ['x', 'o'][token1 == 'x']
+            output(puzzle, token1, token2)
+        elif len(args[0]) <= 2:
+            board = default
+            t1, t2 = 'x', 'o'
+            for i in args:
+                if int(i) < 0: continue
+                board = move(board, int(i), t1, t2)
+                t1 = 'xo'[t1=='x']
+                t2 = 'xo'[t1=='x']
+            output(board, t1, t2)
+        else:
+            board = default
+            t1, t2 = 'x', 'o'
+            for i in range(len(args[0])//2):
+                j = args[0][i*2:i*2+2]
+                if '_' in j: j = j[1]
+                if int(j) < 0: continue
+                board = move(board, int(j), t1, t2)
+                t1 = 'xo'[t1=='x']
+                t2 = 'xo'[t1=='x']
+            output(board, t1, t2)
+    else:
+        tournament()
+
+main()
 #Alexander Yao, Period 4, 2023

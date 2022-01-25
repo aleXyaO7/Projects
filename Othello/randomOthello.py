@@ -44,6 +44,7 @@ def valid(board, pos, t1, t2):
     return False
 
 def findpossible(board, t1, t2):
+
     possible = []
     for i in range(64):
         if board[i] == '.' and valid(board, i, t1, t2):
@@ -84,7 +85,7 @@ def endgame(board, token1, token2):
             two += 1
     return one, two
 
-def move(bd, token1, token2):
+def tournamentmove(bd, token1, token2):
     board = str(bd)
     randmove = randommove(board, token1, token2)
     if randmove != -1:
@@ -118,7 +119,7 @@ for k in range(rand):
     token2 = 'o'
     puzzle = default
     while True:
-        puzzle, i = move(puzzle, token1, token2)
+        puzzle, i = tournamentmove(puzzle, token1, token2)
         if i == -1:
             break
 for k in range(100 - rand):
@@ -129,7 +130,7 @@ for k in range(100 - rand):
     playermove = quickMove(puzzle, token2)
     puzzle = placemove(puzzle, playermove, token2, token1)
     while True:
-        puzzle, i = move(puzzle, token1, token2)
+        puzzle, i = tournamentmove(puzzle, token1, token2)
         if i == -1:
             break
 
