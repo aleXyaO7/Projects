@@ -297,6 +297,8 @@ def tournament():                               #Simulates tournament
                 rcount += one
                 pcount += two
                 scores.append(str(two - one))
+                while result[-2:] == '-1':
+                    result = result[:-2]
                 games.append((two - one, result, 'x', k + rand))
                 result = ''
                 break
