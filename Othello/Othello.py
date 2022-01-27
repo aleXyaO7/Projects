@@ -1,6 +1,6 @@
 import sys; args = sys.argv[1:]
 # Alexander Yao, pd 4
-LIMIT_NM = 1
+LIMIT_NM = 5
 
 import random, time
 
@@ -326,31 +326,35 @@ def tournament():                               #Simulates tournament
 
 def main():
     if args:
-        if len(args[0]) == 64:
-            puzzle = args[0]
+        pointer = 0
+        board, token1, token2 = default, 'x', 'o'
+        if pointer < len(args) and len(args[pointer]) == 64:
+            board = args[0]
+            pointer += 1
+        if pointer < len(args) and len(args[pointer]) == 1:
             token1 = args[1]
             token2 = ['x', 'o'][token1 == 'x']
-            output(puzzle, token1, token2)
-        elif len(args[0]) <= 2:
-            board = default
-            t1, t2 = 'x', 'o'
-            for i in args:
-                if int(i) < 0: continue
-                board = move(board, int(i), t1, t2)
-                t1 = 'xo'[t1=='x']
-                t2 = 'xo'[t1=='x']
-            output(board, t1, t2)
+            pointer += 1
         else:
-            board = default
-            t1, t2 = 'x', 'o'
-            for i in range(len(args[0])//2):
-                j = args[0][i*2:i*2+2]
-                if '_' in j: j = j[1]
-                if int(j) < 0: continue
-                board = move(board, int(j), t1, t2)
-                t1 = 'xo'[t1=='x']
-                t2 = 'xo'[t1=='x']
-            output(board, t1, t2)
+            token1 = ['o', 'x'][board.count('.') % 2]
+            token2 = ['x', 'o'][token1 == 'x']
+        if pointer < len(args):
+            if len(args[pointer]) <= 2:
+                for i in args[pointer:]:
+                    if int(i) < 0: continue
+                    board = move(board, int(i), token1, token2)
+                    token1 = 'xo'[token1=='x']
+                    token2 = 'xo'[token1=='x']
+                output(board, token1, token2)
+            else:
+                for i in range(len(args[pointer:][0])//2):
+                    j = args[0][i*2:i*2+2]
+                    if '_' in j: j = j[1]
+                    if int(j) < 0: continue
+                    board = move(board, int(j), token1, token2)
+                    token1 = 'xo'[token1=='x']
+                    token2 = 'xo'[token1=='x']
+                output(board, token1, token2)
     else:
         tournament()
 
