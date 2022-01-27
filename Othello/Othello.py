@@ -1,6 +1,6 @@
 import sys; args = sys.argv[1:]
 # Alexander Yao, pd 4
-LIMIT_NM = 5
+LIMIT_NM = 6
 
 import random, time
 
@@ -345,7 +345,6 @@ def main():
                     board = move(board, int(i), token1, token2)
                     token1 = 'xo'[token1=='x']
                     token2 = 'xo'[token1=='x']
-                output(board, token1, token2)
             else:
                 for i in range(len(args[pointer:][0])//2):
                     j = args[0][i*2:i*2+2]
@@ -354,7 +353,7 @@ def main():
                     board = move(board, int(j), token1, token2)
                     token1 = 'xo'[token1=='x']
                     token2 = 'xo'[token1=='x']
-                output(board, token1, token2)
+        output(board, token1, token2)
     else:
         tournament()
 
