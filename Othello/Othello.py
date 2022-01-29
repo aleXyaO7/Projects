@@ -40,7 +40,7 @@ def output(board, t1, t2):      #Snapshot
         if possible: print('Possible moves for ' + t2 + ':', possible)
     
     print()
-    print('Othello4 choice:', findmove(board, t1, t2))
+    print('My prefered move is', findmove(board, t1, t2))
     print()
 
     if board.count('.') < LIMIT_NM:
@@ -336,7 +336,7 @@ def main():
             token2 = ['x', 'o'][token1 == 'x']
             pointer += 1
         else:
-            token1 = ['o', 'x'][board.count('.') % 2]
+            token1 = ['x', 'o'][board.count('.') % 2]
             token2 = ['x', 'o'][token1 == 'x']
         if pointer < len(args):
             if len(args[pointer]) <= 2:
@@ -347,7 +347,7 @@ def main():
                     token2 = 'xo'[token1=='x']
             else:
                 for i in range(len(args[pointer:][0])//2):
-                    j = args[0][i*2:i*2+2]
+                    j = args[pointer][i*2:i*2+2]
                     if '_' in j: j = j[1]
                     if int(j) < 0: continue
                     board = move(board, int(j), token1, token2)
