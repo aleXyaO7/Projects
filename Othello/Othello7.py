@@ -1,7 +1,7 @@
 from json.encoder import INFINITY
 import sys; args = sys.argv[1:]
 # Alexander Yao, pd 4
-LIMIT_NM = 14
+LIMIT_NM = 13
 LIMIT_MG = 3
 
 import random, time
@@ -70,7 +70,7 @@ def findpossible(board, t1, t2):    #Finds valid moves
     return possible
 
 weights = {
-    0:99,7:99,56:99,63:99,
+    0:100000,7:100000,56:100000,63:100000,
     1:-8,6:-8,8:-8,15:-8,48:-8,55:-8,57:-8,62:-8,
     2:8,5:8,16:8,23:8,40:8,47:8,58:8,61:8,
     3:6,4:6,24:6,31:6,32:6,39:6,59:6,60:6,
@@ -82,6 +82,7 @@ weights = {
     27:0,28:0,35:0,36:0
 }
 edge = [[0,1,2,3,4,5,6,7],[0,8,16,24,32,40,48,56],[56,57,58,59,60,61,62,63],[7,15,23,31,39,47,55,63]]
+cornernums = [0, 7, 56, 63]
 edgenums = {0,1,2,3,4,5,6,7,8,15,16,23,24,31,32,39,40,47,48,55,56,57,58,59,60,61,62,63}
 edgedict = {}
 for i in edgenums:
@@ -127,7 +128,11 @@ def move(board, pos, token1, token2):       #Makes a move
 cx = {0:{1,8,9},7:{6,14,15},56:{48,49,57},63:{54,55,62}}
 corner = {0,7,56,63}
 def evaluate(board, token1, token2):        #Evaluates how good a position is
-    total = sum([weights[i] for i in range(64) if board[i] == token1])
+    total = 0
+    for i in cornernums:
+        if board[i] == token1: total += 100000
+    for i in edgenums:
+        if safeedgemove(board, i) and board[i] == token1: total += 5000
     cxtotal = {*findpossible(board, token2, token1)}
     for i in cx:
         if board[i] == '.':
@@ -135,7 +140,7 @@ def evaluate(board, token1, token2):        #Evaluates how good a position is
     total1 = len(cxtotal)
     for i in corner:
         if i in cxtotal:
-            total1 += 1
+            total1 += 20
     
     return total - total1 * 100
 
