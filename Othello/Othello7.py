@@ -1,8 +1,8 @@
 from json.encoder import INFINITY
 import sys; args = sys.argv[1:]
 # Alexander Yao, pd 4
-LIMIT_NM = 6
-LIMIT_MG = 0
+LIMIT_NM = 14
+LIMIT_MG = 3
 
 import random, time
 
@@ -135,9 +135,9 @@ def evaluate(board, token1, token2):        #Evaluates how good a position is
     total1 = len(cxtotal)
     for i in corner:
         if i in cxtotal:
-            total1 += 9
+            total1 += 1
     
-    return -total + total1 * 100
+    return total - total1 * 100
 
 def weightedpos(board, pos, token1, token2):        #Weights the positions depending on their evaluation
     result = []
@@ -166,7 +166,7 @@ def quickMove(puzzle, token1):          #Quickmove method
     return findmove(puzzle, token1, token2)
 
 def midgame(board, token1, token2, alpha, beta, depth):
-    if depth == 0:
+    if depth == -1:
         return evaluate(board, token1, token2), ''
     p1 = findpossible(board, token1, token2)
     if not p1:

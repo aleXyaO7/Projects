@@ -1,6 +1,6 @@
 import sys; args = sys.argv[1:]
 # Alexander Yao, pd 4
-LIMIT_NM = 6
+LIMIT_NM = 14
 
 import random, time
 
