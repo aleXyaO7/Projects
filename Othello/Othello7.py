@@ -134,7 +134,7 @@ def evaluate(board, token1, token2):        #Evaluates how good a position is
     for i in edgenums:
         if safeedgemove(board, i) and board[i] == token1: total += 5000
     cxtotal = {*findpossible(board, token2, token1)}
-    for i in cx:
+    for i in corner:
         if board[i] == '.':
             cxtotal -= cx[i]
     total1 = len(cxtotal)
@@ -142,7 +142,7 @@ def evaluate(board, token1, token2):        #Evaluates how good a position is
         if i in cxtotal:
             total1 += 20
     
-    return total - total1 * 100
+    return total - total1
 
 def weightedpos(board, pos, token1, token2):        #Weights the positions depending on their evaluation
     result = []

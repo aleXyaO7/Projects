@@ -1,1 +1,3 @@
-print('23456789'[:-2])
+Suppose Player 1 had just played, and we want to evaluate how good the board is for Player 1. Have an integer n that keeps track of the value. Start n at 0. For each corner occupied, add 1000000 to n. For every safe-edge position, add 5000 to n. 
+
+Now, record another value that keeps track of opponents' possible moves with the resultant board, m. The starting value of m should be the number of possible moves the opponent has in the current position, except the possible moves that go to cx positions (m = opponent possible moves without cx positions). However, add 20 to m for each possible corner move. The final value of the position is n - 100 * m.
