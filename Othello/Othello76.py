@@ -151,7 +151,7 @@ def evaluate(board, token1, token2):        #Evaluates how good a position is
     cxtotal = {*findpossible(board, token2, token1)}
     for i in cx:
         if board[i] == '.':
-            cxtotal -= cx[i]
+            cxtotal -= {*cx[i]}
     total1 = len(cxtotal)
     for i in corner:
         if i in cxtotal:

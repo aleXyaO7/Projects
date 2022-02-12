@@ -69,18 +69,6 @@ def findpossible(board, t1, t2):    #Finds valid moves
             possible.append(i)
     return possible
 
-weights = {
-    0:100000,7:100000,56:100000,63:100000,
-    1:-8,6:-8,8:-8,15:-8,48:-8,55:-8,57:-8,62:-8,
-    2:8,5:8,16:8,23:8,40:8,47:8,58:8,61:8,
-    3:6,4:6,24:6,31:6,32:6,39:6,59:6,60:6,
-    9:-24,14:-24,49:-24,54:-24,
-    10:-4,13:-4,17:-4,22:-4,41:-4,46:-4,50:-4,53:-4,
-    11:-3,12:-3,25:-3,30:-3,33:-3,38:-3,51:-3,52:-3,
-    18:7,21:7,42:7,45:7,
-    19:4,20:4,26:4,29:4,34:4,37:4,43:4,44:4,
-    27:0,28:0,35:0,36:0
-}
 edge = [[0,1,2,3,4,5,6,7],[0,8,16,24,32,40,48,56],[56,57,58,59,60,61,62,63],[7,15,23,31,39,47,55,63]]
 cornernums = [0, 7, 56, 63]
 edgenums = {0,1,2,3,4,5,6,7,8,15,16,23,24,31,32,39,40,47,48,55,56,57,58,59,60,61,62,63}
@@ -127,12 +115,17 @@ def move(board, pos, token1, token2):       #Makes a move
 
 cx = {0:{1,8,9},7:{6,14,15},56:{48,49,57},63:{54,55,62}}
 corner = {0,7,56,63}
+weight_c = 1000
+weight_e = 50
+weight_m = 1
+weight_mc = 5
+weight_me = 1
 def evaluate(board, token1, token2):        #Evaluates how good a position is
     total = 0
     for i in cornernums:
-        if board[i] == token1: total += 100000
+        if board[i] == token1: total += weight_c
     for i in edgenums:
-        if safeedgemove(board, i) and board[i] == token1: total += 5000
+        if safeedgemove(board, i) and board[i] == token1: total += weight_e
     cxtotal = {*findpossible(board, token2, token1)}
     for i in corner:
         if board[i] == '.':
@@ -140,9 +133,11 @@ def evaluate(board, token1, token2):        #Evaluates how good a position is
     total1 = len(cxtotal)
     for i in corner:
         if i in cxtotal:
-            total1 += 20
+            total1 += weight_mc
+    for i in edgenums:
+        if i in cxtotal and safeedgemove(board, i): total1 += weight_me
     
-    return total - total1
+    return total - total1 * weight_m
 
 def weightedpos(board, pos, token1, token2):        #Weights the positions depending on their evaluation
     result = []
