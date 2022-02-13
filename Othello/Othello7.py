@@ -43,12 +43,6 @@ def output(board, t1, t2):      #Snapshot
     
     print()
     print('My prefered move is', findmove(board, t1, t2))
-    print()
-
-    if board.count('.') < LIMIT_NM:
-        score, path = alphabeta(board, t1, t2, -64, 64)
-        path = ' '.join(path.split(' ')[::-1])
-        print('score:', score,', path', path)
 
 def valid(board, pos, t1, t2):      #Checks if move is valid
     for i in constraints[pos]:
@@ -115,17 +109,8 @@ def move(board, pos, token1, token2):       #Makes a move
 
 cx = {0:{1,8,9},7:{6,14,15},56:{48,49,57},63:{54,55,62}}
 corner = {0,7,56,63}
-weight_c = 1000
-weight_e = 50
-weight_m = 1
-weight_mc = 5
-weight_me = 1
-def evaluate(board, token1, token2):        #Evaluates how good a position is
-    total = 0
-    for i in cornernums:
-        if board[i] == token1: total += weight_c
-    for i in edgenums:
-        if safeedgemove(board, i) and board[i] == token1: total += weight_e
+
+def mobility(board, token1, token2, weight_mc, weight_me):
     cxtotal = {*findpossible(board, token2, token1)}
     for i in corner:
         if board[i] == '.':
@@ -136,8 +121,36 @@ def evaluate(board, token1, token2):        #Evaluates how good a position is
             total1 += weight_mc
     for i in edgenums:
         if i in cxtotal and safeedgemove(board, i): total1 += weight_me
+    return total1
+
+def openingevaluate(board, token1, token2):        #Evaluates how good a position is
+    weight_c = 10
+    weight_e = 10
+    weight_m = 1
+    weight_mc = 20
+    weight_me = 1
+    total = 0
+    for i in cornernums:
+        if board[i] == token1: total += weight_c
+    for i in edgenums:
+        if safeedgemove(board, i) and board[i] == token1: total += weight_e
+    totalm = mobility(board, token1, token2, weight_mc, weight_me)
+    return total - totalm * weight_m
+
+def midgameevaluate(board, token1, token2):        #Evaluates how good a position is
+    weight_c = 10
+    weight_e = 5
+    weight_m = 1
+    weight_mc = 20
+    weight_me = 1
+    total = 0
+    for i in cornernums:
+        if board[i] == token1: total += weight_c
+    for i in edgenums:
+        if safeedgemove(board, i) and board[i] == token1: total += weight_e
+    totalm = mobility(board, token1, token2, weight_mc, weight_me)
     
-    return total - total1 * weight_m
+    return total - totalm * weight_m
 
 def weightedpos(board, pos, token1, token2):        #Weights the positions depending on their evaluation
     result = []
@@ -152,7 +165,7 @@ def weightedpos(board, pos, token1, token2):        #Weights the positions depen
     temp = []
     for k in pos:
         newboard = move(board, k, token1, token2)
-        newval = evaluate(newboard, token1, token2)
+        newval = midgameevaluate(newboard, token1, token2)
         temp.append((newval, k))
     temp.sort()
     temp2 = [i for j,i in temp[::-1]]
@@ -163,11 +176,16 @@ def quickMove(puzzle, token1):          #Quickmove method
     tokens = ['x','o']
     tokens.remove(token1)
     token2 = tokens[0]
-    return findmove(puzzle, token1, token2)
+    move = findmove(puzzle, token1, token2)
+    if move == 64: print(0)
+    return move
 
 def midgame(board, token1, token2, alpha, beta, depth):
     if depth == -1:
-        return evaluate(board, token1, token2), ''
+        if board.count('.') < 40:
+            return openingevaluate(board, token1, token2), ''
+        else:
+            return midgameevaluate(board, token1, token2), ''
     p1 = findpossible(board, token1, token2)
     if not p1:
         p2 = findpossible(board, token2, token1)
