@@ -1,4 +1,3 @@
-from json.encoder import INFINITY
 import sys; args = sys.argv[1:]
 # Alexander Yao, pd 4
 LIMIT_NM = 13
@@ -42,7 +41,7 @@ def output(board, t1, t2):      #Snapshot
         if possible: print('Possible moves for ' + t2 + ':', possible)
     
     print()
-    print('My prefered move is', findmove(board, t1, t2))
+    print('Midgame Alphabeta move is', findmove(board, t1, t2))
 
 def valid(board, pos, t1, t2):      #Checks if move is valid
     for i in constraints[pos]:
@@ -82,10 +81,10 @@ def safeedgemove(board, pos):           #Othello4 method
 
 def findmove(board, token1, token2):        #Othello4's findmove
     if board.count('.') < LIMIT_NM:
-        nextmove = alphabeta(board, token1, token2, -INFINITY, INFINITY)[1].split(' ')[0]
+        nextmove = alphabeta(board, token1, token2, -1000000000, 1000000000)[1].split(' ')[0]
         if nextmove: return int(nextmove)
     else:
-        nextmove = midgame(board, token1, token2, -INFINITY, INFINITY, LIMIT_MG)[1].split(' ')[0]
+        nextmove = midgame(board, token1, token2, -1000000000, 1000000000, LIMIT_MG)[1].split(' ')[0]
         if nextmove: return int(nextmove)
     return -1
 
@@ -123,26 +122,26 @@ def mobility(board, token1, token2, weight_mc, weight_me):
         if i in cxtotal and safeedgemove(board, i): total1 += weight_me
     return total1
 
-def openingevaluate(board, token1, token2):        #Evaluates how good a position is
-    weight_c = 10
-    weight_e = 10
-    weight_m = 1
-    weight_mc = 20
-    weight_me = 1
-    total = 0
-    for i in cornernums:
-        if board[i] == token1: total += weight_c
-    for i in edgenums:
-        if safeedgemove(board, i) and board[i] == token1: total += weight_e
-    totalm = mobility(board, token1, token2, weight_mc, weight_me)
-    return total - totalm * weight_m
+# def openingevaluate(board, token1, token2):        #Evaluates how good a position is
+#     weight_c = 10
+#     weight_e = 10
+#     weight_m = 1
+#     weight_mc = 20
+#     weight_me = 1
+#     total = 0
+#     for i in cornernums:
+#         if board[i] == token1: total += weight_c
+#     for i in edgenums:
+#         if safeedgemove(board, i) and board[i] == token1: total += weight_e
+#     totalm = mobility(board, token1, token2, weight_mc, weight_me)
+#     return total - totalm * weight_m
 
 def midgameevaluate(board, token1, token2):        #Evaluates how good a position is
-    weight_c = 10
-    weight_e = 5
+    weight_c = 10000
+    weight_e = 5000
     weight_m = 1
-    weight_mc = 20
-    weight_me = 1
+    weight_mc = 100
+    weight_me = 50
     total = 0
     for i in cornernums:
         if board[i] == token1: total += weight_c
@@ -182,10 +181,7 @@ def quickMove(puzzle, token1):          #Quickmove method
 
 def midgame(board, token1, token2, alpha, beta, depth):
     if depth == -1:
-        if board.count('.') < 40:
-            return openingevaluate(board, token1, token2), ''
-        else:
-            return midgameevaluate(board, token1, token2), ''
+        return midgameevaluate(board, token1, token2), ''
     p1 = findpossible(board, token1, token2)
     if not p1:
         p2 = findpossible(board, token2, token1)
@@ -286,7 +282,7 @@ def tournament():                               #Simulates tournament
     scores = []
     games = []
     result = ''
-    rand = random.randint(0, 100)
+    rand = random.randint(0, 1000)
     for k in range(rand):
         token1 = 'x'
         token2 = 'o'
@@ -307,7 +303,7 @@ def tournament():                               #Simulates tournament
                 games.append((two - one, result, 'o', k))
                 result = ''
                 break
-    for k in range(100-rand):
+    for k in range(1000-rand):
         token1 = 'o'
         token2 = 'x'
         puzzle = default
@@ -332,13 +328,14 @@ def tournament():                               #Simulates tournament
                 break
     
     for i in range(10):
-        for j in range(10):
+        for j in range(100):
             print(scores[i * 10 + j], end = ' ')
         print()
     print()
     print('My Tokens:', pcount, ';', 'Opponent Tokens:', rcount)
     print('Score:', pcount/(rcount + pcount)*100, '%')
     print('NM/AB Limit:', LIMIT_NM)
+    print('MNM/MAB Limit:', LIMIT_MG)
     print()
 
     games.sort()

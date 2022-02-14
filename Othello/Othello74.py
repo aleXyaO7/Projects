@@ -86,11 +86,7 @@ def safeedgemove(board, pos):           #Othello4 method
                 return False
     return True
 
-def findmove6(board, token1, token2):
-    if board.count('.') < LIMIT_NM:
-        nextmove = alphabeta(board, token1, token2, -64, 64)[1].split(' ')[0]
-        if nextmove: return int(nextmove)
-        return -1
+def findmove4(board, token1, token2):
     pos = findpossible(board, token1, token2)
     if not pos:
         return -1
@@ -106,7 +102,7 @@ def findmove6(board, token1, token2):
     val = -1000000
     for k in pos:
         newboard = move(board, k, token1, token2)
-        newval = evaluate(newboard, token1, token2)
+        newval = midgameevaluate(newboard, token1, token2)
         if newval > val:
             mx = k
             val = newval
@@ -141,22 +137,32 @@ def move(board, pos, token1, token2):       #Makes a move
 
 cx = {0:{1,8,9},7:{6,14,15},56:{48,49,57},63:{54,55,62}}
 corner = {0,7,56,63}
-def evaluate(board, token1, token2):        #Evaluates how good a position is
-    total = 0
-    for i in cornernums:
-        if board[i] == token1: total += 100000
-    for i in edgenums:
-        if safeedgemove(board, i) and board[i] == token1: total += 5000
+def mobility(board, token1, token2, weight_mc, weight_me):
     cxtotal = {*findpossible(board, token2, token1)}
-    for i in cx:
+    for i in corner:
         if board[i] == '.':
-            cxtotal -= {*cx[i]}
+            cxtotal -= cx[i]
     total1 = len(cxtotal)
     for i in corner:
         if i in cxtotal:
-            total1 += 20
+            total1 += weight_mc
+    for i in edgenums:
+        if i in cxtotal and safeedgemove(board, i): total1 += weight_me
+    return total1
+def midgameevaluate(board, token1, token2):        #Evaluates how good a position is
+    weight_c = 1000000
+    weight_e = 5000
+    weight_m = 1
+    weight_mc = 20
+    weight_me = 5
+    total = 0
+    for i in cornernums:
+        if board[i] == token1: total += weight_c
+    for i in edgenums:
+        if safeedgemove(board, i) and board[i] == token1: total += weight_e
+    totalm = mobility(board, token1, token2, weight_mc, weight_me)
     
-    return total - total1 * 100
+    return total - totalm * weight_m
 
 def weightedpos(board, pos, token1, token2):        #Weights the positions depending on their evaluation
     result = []
@@ -171,7 +177,7 @@ def weightedpos(board, pos, token1, token2):        #Weights the positions depen
     temp = []
     for k in pos:
         newboard = move(board, k, token1, token2)
-        newval = evaluate(newboard, token1, token2)
+        newval = midgameevaluate(newboard, token1, token2)
         temp.append((newval, k))
     temp.sort()
     temp2 = [i for j,i in temp[::-1]]
@@ -186,7 +192,7 @@ def quickMove(puzzle, token1):          #Quickmove method
 
 def midgame(board, token1, token2, alpha, beta, depth):
     if depth == -1:
-        return evaluate(board, token1, token2), ''
+        return midgameevaluate(board, token1, token2), ''
     p1 = findpossible(board, token1, token2)
     if not p1:
         p2 = findpossible(board, token2, token1)
@@ -250,7 +256,7 @@ def endgame(board, token1, token2):             #Checks if game is over
 def tournamentmove(bd, token1, token2, result):         #Simulates a tournament game
     result = result + ''
     board = str(bd)
-    randmove = findmove6(board, token1, token2)
+    randmove = findmove4(board, token1, token2)
     if randmove != -1:
         board = move(board, randmove, token1, token2)
         m = str(randmove)
@@ -324,7 +330,6 @@ def tournament():                               #Simulates tournament
                 games.append((two - one, result, 'x', k + rand))
                 result = ''
                 break
-    
     for i in range(10):
         for j in range(10):
             print(scores[i * 10 + j], end = ' ')
