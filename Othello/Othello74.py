@@ -1,4 +1,3 @@
-from json.encoder import INFINITY
 import sys; args = sys.argv[1:]
 # Alexander Yao, pd 4
 LIMIT_NM = 13
@@ -110,10 +109,10 @@ def findmove4(board, token1, token2):
 
 def findmove(board, token1, token2):        #Othello4's findmove
     if board.count('.') < LIMIT_NM:
-        nextmove = alphabeta(board, token1, token2, -INFINITY, INFINITY)[1].split(' ')[0]
+        nextmove = alphabeta(board, token1, token2, -100000, 100000)[1].split(' ')[0]
         if nextmove: return int(nextmove)
     else:
-        nextmove = midgame(board, token1, token2, -INFINITY, INFINITY, LIMIT_MG)[1].split(' ')[0]
+        nextmove = midgame(board, token1, token2, -100000, 100000, LIMIT_MG)[1].split(' ')[0]
         if nextmove: return int(nextmove)
     return -1
 

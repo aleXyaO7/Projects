@@ -31,23 +31,17 @@ def output(board, t1, t2):      #Snapshot
     result = ''.join(temp)
     for i in range(8):
         print(result[i * 8:i * 8 + 8])
-    
+
     print()
-    
+
     print(board, str(board.count('x')) +  '/' + str(board.count('o')))
     if possible: print('Possible moves for ' + t1 + ':', possible)
     else:
         possible = findpossible(board, t2, t1)
         if possible: print('Possible moves for ' + t2 + ':', possible)
-    
+
     print()
     print('My prefered move is', findmove(board, t1, t2))
-    print()
-
-    if board.count('.') < LIMIT_NM:
-        score, path = alphabeta(board, t1, t2, -64, 64)
-        path = ' '.join(path.split(' ')[::-1])
-        print('score:', score,', path', path)
 
 def valid(board, pos, t1, t2):      #Checks if move is valid
     for i in constraints[pos]:
@@ -70,28 +64,43 @@ def findpossible(board, t1, t2):    #Finds valid moves
 
 edge = [[0,1,2,3,4,5,6,7],[0,8,16,24,32,40,48,56],[56,57,58,59,60,61,62,63],[7,15,23,31,39,47,55,63]]
 cornernums = [0, 7, 56, 63]
-edgenums = {0,1,2,3,4,5,6,7,8,15,16,23,24,31,32,39,40,47,48,55,56,57,58,59,60,61,62,63}
+edgenums = {1,2,3,4,5,6,8,15,16,23,24,31,32,39,40,47,48,55,57,58,59,60,61,62}
 edgedict = {}
 for i in edgenums:
     edgedict[i] = []
     for j in edge:
         if i in j:
-            edgedict[i].append({*j} - {i})
+            edgedict[i].append(j[0:j.index(i)][::-1])
+            edgedict[i].append(j[j.index(i) + 1:len(j)])
 
-def safeedgemove(board, pos):           #Othello4 method
-    for i in edgedict[pos]:
-        for j in i:
-            if board[j] == '.':
-                return False
+def safeedgemove(board, pos, token2):           #Othello4 method
+    flag1, flag2 = 0, 0
+    for j in edgedict[pos][0]:
+        if board[j] == token2:
+            flag1 = 1
+            break
+        if board[j] == '.':
+            flag1 = 2
+            break
+    for j in edgedict[pos][1]:
+        if board[j] == token2:
+            flag2 = 1
+            break
+        if board[j] == '.':
+            flag2 = 2
+            break
+    if flag1 + flag2 > 2:
+        return False
     return True
 
 def findmove(board, token1, token2):        #Othello7's findmove
+    n = 0
     if board.count('.') < LIMIT_NM:
-        nextmove = alphabeta(board, token1, token2, -10000000, 10000000)[1].split(' ')[0]
-        if nextmove: return int(nextmove)
+        n = LIMIT_NM - 2
     else:
-        nextmove = midgame(board, token1, token2, -10000000, 10000000, LIMIT_MG)[1].split(' ')[0]
-        if nextmove: return int(nextmove)
+        n = LIMIT_MG
+    nextmove = alphabeta(board, token1, token2, -1000000, 1000000, n)[1].split(' ')[0]
+    if nextmove: return int(nextmove)
     return -1
 
 def findmove4(board, token1, token2):        #Othello4's findmove
@@ -162,22 +171,8 @@ def move(board, pos, token1, token2):       #Makes a move
 
 cx = {0:{1,8,9},7:{6,14,15},56:{48,49,57},63:{54,55,62}}
 corner = {0,7,56,63}
-weight_c = 1000000
-weight_e = 5000
-weight_m = 1
-weight_mc = 20
-weight_me = 1
 
-def evaluate(board, token1, token2):        #Evaluates how good a position is
-    total = 0
-    for i in cornernums:
-        if board[i] == token1: total += weight_c
-        elif board[i] == token2: total -= weight_c
-    for i in edgenums:
-        if safeedgemove(board, i):
-            if board[i] == token1: total += weight_e
-            elif board[i] == token2: total -= weight_e
-    
+def mobility(board, token1, token2, weight_mc, weight_me):
     cxtotal = {*findpossible(board, token2, token1)}
     for i in corner:
         if board[i] == '.':
@@ -187,52 +182,59 @@ def evaluate(board, token1, token2):        #Evaluates how good a position is
         if i in cxtotal:
             total1 += weight_mc
     for i in edgenums:
-        if i in cxtotal and safeedgemove(board, i):
+        if i in cxtotal and safeedgemove(board, i, token1):
             total1 += weight_me
-    
-    return total - total1 * weight_m
+    return total1
+
+def evaluate(board, token1, token2):        #Evaluates how good a position is
+    weight_c = 10000
+    weight_e = 200
+    weight_m = 1
+    weight_mc = 1000
+    weight_me = 50
+    total = 0
+    for i in cornernums:
+        if board[i] == token1: total += weight_c
+    for i in edgenums:
+        if board[i] == token1 and safeedgemove(board, i, token2): total += weight_e
+    totalm = mobility(board, token1, token2, weight_mc, weight_me)
+    return total - totalm * weight_m
+
+def eval(board, token1, token2):
+    return evaluate(board, token1, token2)
 
 def weightedpos(board, pos, token1, token2):        #Weights the positions depending on their evaluation
-    result = []
-    for i in corner:
-        if i in pos:
-            pos.remove(i)
-            result.append(i)
-    for i in edgenums:
-        if i in pos and safeedgemove(board, i):
-            pos.remove(i)
-            result.append(i)
     temp = []
     for k in pos:
         newboard = move(board, k, token1, token2)
-        newval = evaluate(newboard, token1, token2)
+        newval = eval(newboard, token1, token2)
         temp.append((newval, k))
     temp.sort()
-    temp2 = [i for j,i in temp[::-1]]
-    result = result + temp2
-    return result
+    return [i for j,i in temp[::-1]]
 
 def quickMove(puzzle, token1):          #Quickmove method
     tokens = ['x','o']
     tokens.remove(token1)
     token2 = tokens[0]
-    return findmove(puzzle, token1, token2)
+    move = findmove(puzzle, token1, token2)
+    if move == 64: print(0)
+    return move
 
-def midgame(board, token1, token2, alpha, beta, depth):
+def alphabeta(board, token1, token2, alpha, beta, depth):
     if depth == -1:
-        return evaluate(board, token1, token2), ''
+        return eval(board, token1, token2), ''
     p1 = findpossible(board, token1, token2)
     if not p1:
         p2 = findpossible(board, token2, token1)
         if not p2:
             k = board.count(token1) - board.count(token2)
             return k, ''
-    
+
     nextmoves = ''
     if p1:
         p1 = weightedpos(board, p1, token1, token2)
         for i in p1:
-            score, newpath = midgame(move(board, i, token1, token2), token2, token1, -1 * beta, -1 * alpha, depth - 1)
+            score, newpath = alphabeta(move(board, i, token1, token2), token2, token1, -1 * beta, -1 * alpha, depth - 1)
             score = -score
             if score >= beta:
                 return score, ''
@@ -241,33 +243,7 @@ def midgame(board, token1, token2, alpha, beta, depth):
             alpha = score
             nextmoves = str(i) + ' ' + newpath
     else:
-        maxi, new = midgame(board, token2, token1, -1 * beta, -1 * alpha, depth - 1)
-        return -maxi, '-1 ' + new
-
-    return alpha, nextmoves
-
-def alphabeta(board, token1, token2, alpha, beta):
-    p1 = findpossible(board, token1, token2)
-    if not p1:
-        p2 = findpossible(board, token2, token1)
-        if not p2:
-            k = board.count(token1) - board.count(token2)
-            return k, ''
-    
-    nextmoves = ''
-    if p1:
-        p1 = weightedpos(board, p1, token1, token2)
-        for i in p1:
-            score, newpath = alphabeta(move(board, i, token1, token2), token2, token1, -1 * beta, -1 * alpha)
-            score = -score
-            if score >= beta:
-                return score, ''
-            if score <= alpha:
-                continue
-            alpha = score
-            nextmoves = str(i) + ' ' + newpath
-    else:
-        maxi, new = alphabeta(board, token2, token1, -1 * beta, -1 * alpha)
+        maxi, new = alphabeta(board, token2, token1, -1 * beta, -1 * alpha, depth - 1)
         return -maxi, '-1 ' + new
 
     return alpha, nextmoves
@@ -367,7 +343,7 @@ def tournament():                               #Simulates tournament
                 games.append((two - one, result, 'x', k + rand))
                 result = ''
                 break
-    
+
     for i in range(10):
         for j in range(10):
             print(scores[i * 10 + j], end = ' ')
