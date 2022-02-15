@@ -103,7 +103,7 @@ def findmove4(board, token1, token2):        #Othello4's findmove
         if i in pos:
             return i
     for i in edgenums:
-        if i in pos and safeedgemove(board, i, token2):
+        if i in pos and safeedgemove(board, i):
             return i
 
     mx = 0
@@ -129,7 +129,7 @@ def findmove6(board, token1, token2):        #Othello6's findmove
         if i in pos:
             return i
     for i in edgenums:
-        if i in pos and safeedgemove(board, i, token2):
+        if i in pos and safeedgemove(board, i):
             return i
 
     mx = 0
@@ -165,8 +165,8 @@ corner = {0,7,56,63}
 weight_c = 1000000
 weight_e = 5000
 weight_m = 1
-weight_mc = 20
-weight_me = 1
+weight_mc = 2000
+weight_me = 100
 
 def evaluate(board, token1, token2):        #Evaluates how good a position is
     total = 0
@@ -291,8 +291,8 @@ def randommove(board, token1, token2):          #Makes random move
 def tournamentmove(bd, token1, token2, result):         #Simulates a tournament game
     result = result + ''
     board = str(bd)
-    randmove = randommove(board, token1, token2)
-    #randmove = findmove4(board, token1, token2)
+    #randmove = randommove(board, token1, token2)
+    randmove = findmove4(board, token1, token2)
     #randmove = findmove6(board, token1, token2)
     if randmove != -1:
         board = move(board, randmove, token1, token2)
