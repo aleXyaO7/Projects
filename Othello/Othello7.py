@@ -292,8 +292,8 @@ def tournamentmove(bd, token1, token2, result):         #Simulates a tournament 
     result = result + ''
     board = str(bd)
     #randmove = randommove(board, token1, token2)
-    randmove = findmove4(board, token1, token2)
-    #randmove = findmove6(board, token1, token2)
+    #randmove = findmove4(board, token1, token2)
+    randmove = findmove6(board, token1, token2)
     if randmove != -1:
         board = move(board, randmove, token1, token2)
         m = str(randmove)
