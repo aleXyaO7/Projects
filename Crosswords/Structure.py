@@ -61,7 +61,7 @@ def prep(puzzle, numBlocks, conds):
     puzzle = blocks(puzzle, numBlocks - puzzle.count(blockchar))
     return puzzle
 
-def output(puzzle, w, h):
+def output(puzzle):
     for i in range(h):
         print(puzzle[i * w: i * w + w])
 
@@ -70,7 +70,7 @@ def addtemp(puzzle, ind, n, ch):
     lst[ind] = ch
     n -= 1
     if ind != leng // 2:
-        lst[leng - ind] = ch
+        lst[leng - ind - 1] = ch
         n -= 1
     return ''.join(lst), n
 
@@ -106,17 +106,20 @@ def rowcheck(puzzle, lst):
 
 def floodfill(puzzle, n):
     p = ''.join(puzzle)
+    g = puzzle[:]
     seen = set()
     total = 0
     stk = [p.find(tempchar)]
     while stk:
         node = stk.pop()
         total += 1
+        g[node] = '*'
         for i in nbrs[node]:
-            if i not in seen and i == blockchar:
+            if i not in seen and g[i] == tempchar:
                 seen.add(i)
                 stk.append(i)
-    return total == n
+
+    return total == (leng - n)
 
 def valid(puzzle):
     for i in range(h): 
@@ -127,20 +130,21 @@ def valid(puzzle):
     return True
 
 def bf(puzzle, numBlocks):
-    if numBlocks == 0:
+    if numBlocks <= 0:
         temp = [*puzzle.replace(openchar, tempchar)]
         if valid(temp):
             return ''.join(temp)
         return ''
     idx = puzzle.find(openchar)
+    if idx == -1: return ''
     npuzzle, n = addtemp(puzzle, idx, numBlocks, blockchar)
-    npuzzle = bf(puzzle, numBlocks)
+    npuzzle = bf(npuzzle, n)
     if npuzzle: return npuzzle
     npuzzle, n = addtemp(puzzle, idx, numBlocks, tempchar)
-    npuzzle = bf(puzzle, numBlocks)
+    npuzzle = bf(npuzzle, numBlocks)
     if npuzzle: return npuzzle
     return ''
 
-output(prep(puzzle, numBlocks, conds), w, h)
+output(prep(puzzle, numBlocks, conds))
 
 #Alexander Yao, Period 4, 2023
