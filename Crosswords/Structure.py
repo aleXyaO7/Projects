@@ -9,6 +9,15 @@ for i in range(h): rows.append([*range(i*w, i*w+w)])
 for i in range(w): cols.append([*range(i, i+h*w, w)])
 numBlocks = int(args[1])
 
+nbrs = {}
+for i in range(leng):
+    nbr = []
+    if i >= w: nbr.append(i-w)
+    if i < leng - w: nbr.append(i+w)
+    if i % w != 0: nbr.append(i-1)
+    if i % w != w - 1: nbr.append(i+1)
+    nbrs[i] = nbr
+
 conds = args[2:]
 
 openchar = '-'
@@ -56,12 +65,12 @@ def output(puzzle, w, h):
     for i in range(h):
         print(puzzle[i * w: i * w + w])
 
-def addtemp(puzzle, ind, n):
+def addtemp(puzzle, ind, n, ch):
     lst = list(puzzle)
-    lst[ind] = tempchar
+    lst[ind] = ch
     n -= 1
     if ind != leng // 2:
-        lst[leng - ind] = tempchar
+        lst[leng - ind] = ch
         n -= 1
     return ''.join(lst), n
 
@@ -78,9 +87,9 @@ def blocks(puzzle, numBlocks):
         elif lst[i] != openchar and lst[leng - i - 1] == openchar and i != leng//2:
             lst[leng - i - 1] = tempchar
     
-    #lst = bf(lst, n)
+    puzzle = bf(''.join(lst), n)
     
-    puzzle = ''.join(lst).replace(tempchar, openchar)
+    puzzle = puzzle.replace(tempchar, openchar)
     return puzzle
 
 def rowcheck(puzzle, lst):
@@ -95,19 +104,42 @@ def rowcheck(puzzle, lst):
         return True
     return False
 
+def floodfill(puzzle, n):
+    p = ''.join(puzzle)
+    seen = set()
+    total = 0
+    stk = [p.find(tempchar)]
+    while stk:
+        node = stk.pop()
+        total += 1
+        for i in nbrs[node]:
+            if i not in seen and i == blockchar:
+                seen.add(i)
+                stk.append(i)
+    return total == n
+
 def valid(puzzle):
     for i in range(h): 
         if not rowcheck(puzzle, rows[i]): return False
     for i in range(w): 
         if not rowcheck(puzzle, cols[i]): return False
-
+    if not floodfill(puzzle, numBlocks): return False
+    return True
 
 def bf(puzzle, numBlocks):
     if numBlocks == 0:
-        temp = [*''.join(puzzle).replace(openchar, tempchar)]
+        temp = [*puzzle.replace(openchar, tempchar)]
         if valid(temp):
-            return puzzle
-        return []
+            return ''.join(temp)
+        return ''
+    idx = puzzle.find(openchar)
+    npuzzle, n = addtemp(puzzle, idx, numBlocks, blockchar)
+    npuzzle = bf(puzzle, numBlocks)
+    if npuzzle: return npuzzle
+    npuzzle, n = addtemp(puzzle, idx, numBlocks, tempchar)
+    npuzzle = bf(puzzle, numBlocks)
+    if npuzzle: return npuzzle
+    return ''
 
 output(prep(puzzle, numBlocks, conds), w, h)
 
