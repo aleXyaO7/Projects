@@ -51,14 +51,36 @@ def vcond(puzzle, r, c, word):
         pointer += 1
     return ''.join(lst)
 
+def htcond(puzzle, r, c, word, n):
+    pointer = c
+    for i in word:
+        if i == blockchar: puzzle, n = addtemp(puzzle, r * w + pointer, n, blockchar)
+        else: puzzle, n = addtemp(puzzle, r * w + pointer, n, tempchar)
+        pointer += 1
+    return puzzle, n
+
+def vtcond(puzzle, r, c, word, n):
+    pointer = r
+    for i in word:
+        if i == blockchar: puzzle, n = addtemp(puzzle, pointer * w + c, n, blockchar)
+        else: puzzle, n = addtemp(puzzle, pointer * w + c, n, tempchar)
+        pointer += 1
+    return puzzle, n
+
 def prep(puzzle, numBlocks, conds):
+    for cond in conds:
+        one, two = cond[:cond.find('x')], cond[cond.find('x') + 1:]
+        r = int(one[1:])
+        c, word = intscan(two)
+        if one[0] == 'H': puzzle, numBlocks = htcond(puzzle, r, c, word, numBlocks)
+        else: puzzle, numBlocks = vtcond(puzzle, r, c, word, numBlocks)
+    puzzle = blocks(puzzle, numBlocks)
     for cond in conds:
         one, two = cond[:cond.find('x')], cond[cond.find('x') + 1:]
         r = int(one[1:])
         c, word = intscan(two)
         if one[0] == 'H': puzzle = hcond(puzzle, r, c, word)
         else: puzzle = vcond(puzzle, r, c, word)
-    puzzle = blocks(puzzle, numBlocks - puzzle.count(blockchar))
     return puzzle
 
 def output(puzzle):
@@ -68,26 +90,20 @@ def output(puzzle):
 def addtemp(puzzle, ind, n, ch):
     lst = list(puzzle)
     lst[ind] = ch
-    n -= 1
+    if ch == blockchar:
+        n -= 1
     if ind != leng // 2:
         lst[leng - ind - 1] = ch
-        n -= 1
+        if ch == blockchar:
+            n -= 1
     return ''.join(lst), n
 
 def blocks(puzzle, numBlocks):
     n = numBlocks
     if n == puzzle.count(openchar):
         return puzzle.replace(openchar, blockchar)
-    
-    lst = list(puzzle)
-    for i in range(leng):
-        if lst[i] == blockchar:
-            lst[leng - i - 1] = blockchar
-            n -= 1
-        elif lst[i] != openchar and lst[leng - i - 1] == openchar and i != leng//2:
-            lst[leng - i - 1] = tempchar
-    
-    puzzle = bf(''.join(lst), n)
+        
+    puzzle = bf(puzzle, n)
     
     puzzle = puzzle.replace(tempchar, openchar)
     return puzzle
