@@ -11,18 +11,27 @@ numBlocks = int(args[1])
 
 nbrs = {}
 for i in range(leng):
-    nbr = []
-    if i >= w: nbr.append(i-w)
-    if i < leng - w: nbr.append(i+w)
-    if i % w != 0: nbr.append(i-1)
-    if i % w != w - 1: nbr.append(i+1)
+    nbr = {}
+    if i >= w: nbr[i-w] = [i+w, i+2*w]
+    if i < leng - w: nbr[i+w] = [i-w, i-2*w]
+    if i % w != 0: nbr[i-1] = [i+1, i+2]
+    if i % w != w - 1: nbr[i+1] = [i-1, i-2]
     nbrs[i] = nbr
 
 edges = {}
-for i in range(w): edges[i] = [i+w, i+2*w]
-for i in range(leng-w, leng): edges[i] = [i-w, i-2*w]
-for i in range(0, leng-w, w): edges[i] = [i+1, i+2]
-for i in range(w - 1, leng, w): edges[i] = [i-1, i-2]
+for i in range(leng): edges[i] = set()
+for i in range(w): 
+    edges[i].add(i+w)
+    edges[i].add(i+2*w)
+for i in range(leng-w, leng): 
+    edges[i].add(i-w)
+    edges[i].add(i-2*w)
+for i in range(0, leng-w, w): 
+    edges[i].add(i+1)
+    edges[i].add(i+2)
+for i in range(w - 1, leng, w): 
+    edges[i].add(i-1)
+    edges[i].add(i-2)
 conds = args[2:]
 
 openchar = '-'
@@ -80,6 +89,7 @@ def prep(puzzle, numBlocks, conds):
         if one[0] == 'H': puzzle, numBlocks = htcond(puzzle, r, c, word, numBlocks)
         else: puzzle, numBlocks = vtcond(puzzle, r, c, word, numBlocks)
     puzzle = blocks(puzzle, numBlocks)
+    if not puzzle: return puzzle
     for cond in conds:
         one, two = cond[:cond.find('x')], cond[cond.find('x') + 1:]
         r = int(one[1:])
@@ -101,24 +111,33 @@ def addtemp(puzzle, ind, n, ch):
         if ind != leng // 2:
             lst[rev] = ch
             n -= 1
-    elif ind in edges: 
+    else:
         if ind != leng // 2:
-            lst[rev] = ch
-        for i in edges[ind]:
-            if lst[i] == blockchar:
-                return puzzle, n, -1
-            lst[ind] = tempchar
-        for i in edges[rev]:
-            lst[i] = tempchar
+            lst[rev] = ch   
+        if ind in edges: 
+            for i in edges[ind]:
+                if lst[i] == blockchar:
+                    return puzzle, n, -1
+                lst[i] = tempchar
+            for i in edges[rev]:
+                lst[i] = tempchar
+        for i in nbrs[ind]:
+            if puzzle[i] == blockchar:
+                for j in nbrs[ind][i]:
+                    if j < 0 or j >= leng or puzzle[j] == blockchar: return puzzle, n, -1
+                    lst[j] = tempchar
+        for i in nbrs[rev]:
+            if puzzle[i] == blockchar:
+                for j in nbrs[rev][i]: lst[j] = tempchar
     return ''.join(lst), n, 0
 
 def blocks(puzzle, numBlocks):
+    if puzzle.find(openchar) == -1: return puzzle.replace(tempchar, openchar)
     n = numBlocks
     if n == puzzle.count(openchar):
         return puzzle.replace(openchar, blockchar)
     if n % 2 == 1: puzzle, n, t = addtemp(puzzle, leng//2, n, blockchar)
     puzzle = bf(puzzle, n)
-    
     puzzle = puzzle.replace(tempchar, openchar)
     return puzzle
 
@@ -149,7 +168,7 @@ def floodfill(puzzle, n):
                 seen.add(i)
                 stk.append(i)
 
-    return total == (leng - n)
+    return total >= (leng - n)
 
 def valid(puzzle):
     for i in range(h): 
@@ -161,10 +180,8 @@ def valid(puzzle):
 
 def bf(puzzle, numBlocks):
     if numBlocks <= 0:
-        temp = [*puzzle.replace(openchar, tempchar)]
-        if valid(temp):
-            return ''.join(temp)
-        return ''
+        if not valid([*puzzle.replace(openchar, tempchar)]): return ''
+        return puzzle
     idx = puzzle.find(openchar)
     if idx == -1: return ''
     npuzzle, n, t = addtemp(puzzle, idx, numBlocks, blockchar)
