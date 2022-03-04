@@ -18,6 +18,11 @@ for i in range(leng):
     if i % w != w - 1: nbr.append(i+1)
     nbrs[i] = nbr
 
+edges = {}
+for i in range(w): edges[i] = [i+w, i+2*w]
+for i in range(leng-w, leng): edges[i] = [i-w, i-2*w]
+for i in range(0, leng-w, w): edges[i] = [i+1, i+2]
+for i in range(w - 1, leng, w): edges[i] = [i-1, i-2]
 conds = args[2:]
 
 openchar = '-'
@@ -54,16 +59,16 @@ def vcond(puzzle, r, c, word):
 def htcond(puzzle, r, c, word, n):
     pointer = c
     for i in word:
-        if i == blockchar: puzzle, n = addtemp(puzzle, r * w + pointer, n, blockchar)
-        else: puzzle, n = addtemp(puzzle, r * w + pointer, n, tempchar)
+        if i == blockchar: puzzle, n, t = addtemp(puzzle, r * w + pointer, n, blockchar)
+        else: puzzle, n, t = addtemp(puzzle, r * w + pointer, n, tempchar)
         pointer += 1
     return puzzle, n
 
 def vtcond(puzzle, r, c, word, n):
     pointer = r
     for i in word:
-        if i == blockchar: puzzle, n = addtemp(puzzle, pointer * w + c, n, blockchar)
-        else: puzzle, n = addtemp(puzzle, pointer * w + c, n, tempchar)
+        if i == blockchar: puzzle, n, t = addtemp(puzzle, pointer * w + c, n, blockchar)
+        else: puzzle, n, t = addtemp(puzzle, pointer * w + c, n, tempchar)
         pointer += 1
     return puzzle, n
 
@@ -90,20 +95,28 @@ def output(puzzle):
 def addtemp(puzzle, ind, n, ch):
     lst = list(puzzle)
     lst[ind] = ch
+    rev = leng - ind - 1
     if ch == blockchar:
         n -= 1
-    if ind != leng // 2:
-        lst[leng - ind - 1] = ch
-        if ch == blockchar:
+        if ind != leng // 2:
+            lst[rev] = ch
             n -= 1
-    return ''.join(lst), n
+    elif ind in edges: 
+        if ind != leng // 2:
+            lst[rev] = ch
+        for i in edges[ind]:
+            if lst[i] == blockchar:
+                return puzzle, n, -1
+            lst[ind] = tempchar
+        for i in edges[rev]:
+            lst[i] = tempchar
+    return ''.join(lst), n, 0
 
 def blocks(puzzle, numBlocks):
     n = numBlocks
     if n == puzzle.count(openchar):
         return puzzle.replace(openchar, blockchar)
-    
-    if n % 2 == 1: puzzle, n = addtemp(puzzle, leng//2, n, blockchar)
+    if n % 2 == 1: puzzle, n, t = addtemp(puzzle, leng//2, n, blockchar)
     puzzle = bf(puzzle, n)
     
     puzzle = puzzle.replace(tempchar, openchar)
@@ -154,12 +167,13 @@ def bf(puzzle, numBlocks):
         return ''
     idx = puzzle.find(openchar)
     if idx == -1: return ''
-    npuzzle, n = addtemp(puzzle, idx, numBlocks, blockchar)
+    npuzzle, n, t = addtemp(puzzle, idx, numBlocks, blockchar)
     npuzzle = bf(npuzzle, n)
     if npuzzle: return npuzzle
-    npuzzle, n = addtemp(puzzle, idx, numBlocks, tempchar)
-    npuzzle = bf(npuzzle, numBlocks)
-    if npuzzle: return npuzzle
+    npuzzle, n, t = addtemp(puzzle, idx, numBlocks, tempchar)
+    if t == 0:
+        npuzzle = bf(npuzzle, numBlocks)
+        if npuzzle: return npuzzle
     return ''
 
 output(prep(puzzle, numBlocks, conds))
