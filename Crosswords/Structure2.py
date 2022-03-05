@@ -19,8 +19,11 @@ for i in range(leng):
     nbrs[i] = nbr
 
 edges = {}
-for i in range(leng): edges[i] = set()
-for i in range(w): 
+for i in range(w): edges[i] = set()
+for i in range(leng-w, leng): edges[i] = set()
+for i in range(0, leng-w, w): edges[i] = set()
+for i in range(w - 1, leng, w): edges[i] = set()
+for i in range(w):
     edges[i].add(i+w)
     edges[i].add(i+2*w)
 for i in range(leng-w, leng): 
@@ -32,6 +35,7 @@ for i in range(0, leng-w, w):
 for i in range(w - 1, leng, w): 
     edges[i].add(i-1)
     edges[i].add(i-2)
+
 conds = args[2:]
 
 openchar = '-'
@@ -111,6 +115,7 @@ def addtemp(puzzle, ind, n, ch):
         if ind != leng // 2:
             lst[rev] = ch
             n -= 1
+        
     else:
         if ind != leng // 2:
             lst[rev] = ch   
