@@ -57,10 +57,10 @@ for i in range(leng):
 blocknbrs = {}
 for i in range(leng):
     nbr = {}
-    if i >= w: nbr[i-3*w] = [i-w, i-2*w]
-    if i < leng - w: nbr[i+3*w] = [i+w, i+2*w]
-    if i % w != 0: nbr[i-3] = [i-1, i-2]
-    if i % w != w - 1: nbr[i+3] = [i+1, i+2]
+    if i+3*w < leng: nbr[i+3*w] = [i+2*w, i+w, leng-i-2*w-1, leng-i-w-1]
+    if i-3*w >= 0: nbr[i-3*w] = [i-2*w, i-w, leng-i+2*w-1, leng-i+w-1]
+    if i % w > 2: nbr[i-3] = [i-1, i-2, leng-i, leng-i+1]
+    if i % w < w - 3: nbr[i+3] = [i+1, i+2, leng-i-3, leng-i-2]
     blocknbrs[i] = nbr
 
 conds = args[2:]
@@ -138,11 +138,19 @@ def addtemp(puzzle, ind, n, ch):
     lst = list(puzzle)
     lst[ind] = ch
     rev = leng - ind - 1
+    newn = n
     if ch == blockchar:
-        n -= 1
+        newn -= 1
         if ind != leng // 2:
             lst[rev] = ch
-            n -= 1
+            newn -= 1
+        for i in blocknbrs[ind]:
+            if lst[i] == blockchar:
+                for j in blocknbrs[ind][i]:
+                    if lst[j] == tempchar: return puzzle, n, -1
+                    if lst[j] == openchar:
+                        lst[j] = blockchar
+                        newn -= 1 
         
     else:
         if ind != leng // 2:
@@ -157,7 +165,7 @@ def addtemp(puzzle, ind, n, ch):
                 for j in nbrs[ind][i]:
                     if j < 0 or j >= leng or puzzle[j] == blockchar: return puzzle, n, -1
                     lst[j] = tempchar
-    return ''.join(lst), n, 0
+    return ''.join(lst), newn, 0
 
 def blocks(puzzle, numBlocks):
     if puzzle.find(openchar) == -1: return puzzle.replace(tempchar, openchar)
@@ -222,8 +230,9 @@ def bf(puzzle, numBlocks):
     idx = puzzle.find(openchar)
     if idx == -1: return ''
     npuzzle, n, t = addtemp(puzzle, idx, numBlocks, blockchar)
-    npuzzle = bf(npuzzle, n)
-    if npuzzle: return npuzzle
+    if t == 0:
+        npuzzle = bf(npuzzle, n)
+        if npuzzle: return npuzzle
     npuzzle, n, t = addtemp(puzzle, idx, numBlocks, tempchar)
     if t == 0:
         npuzzle = bf(npuzzle, numBlocks)
@@ -231,5 +240,4 @@ def bf(puzzle, numBlocks):
     return ''
 
 output(prep(puzzle, numBlocks, conds))
-
 #Alexander Yao, Period 4, 2023
