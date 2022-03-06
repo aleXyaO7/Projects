@@ -1,4 +1,6 @@
 import sys; args = sys.argv[1:]
+myList = open(args[2], 'r').read().splitlines()
+myWords = set(myList)
 
 h, w = args[0].split('x')
 h, w = int(h), int(w)
@@ -65,13 +67,15 @@ for i in range(leng):
     if i % w < w - 3: nbr[i+3] = [i+1, i+2, leng-i-3, leng-i-2]
     blocknbrs[i] = nbr
 
-conds = args[2:]
+conds = args[3:]
 
 openchar = '-'
 blockchar = '#'
 tempchar = '$'
 
 puzzle = openchar * leng
+
+#-----------------Structure-----------------
 
 def intscan(str):
     digits = '0123456789'
@@ -242,5 +246,9 @@ def bf(puzzle, numBlocks):
     return ''
 
 prep(puzzle, numBlocks, conds)
-for i in conpuzzles: output(i)
+
+#-----------------Creation-----------------
+
+
+
 #Alexander Yao, Period 4, 2023
