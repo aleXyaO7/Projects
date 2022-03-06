@@ -1,5 +1,4 @@
 import sys; args = sys.argv[1:]
-import time
 
 h, w = args[0].split('x')
 h, w = int(h), int(w)
