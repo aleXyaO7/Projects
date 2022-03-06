@@ -247,6 +247,34 @@ def bf(puzzle, numBlocks):
 
 prep(puzzle, numBlocks, conds)
 
+def extractrow(puzzle, r):
+    result = []
+    pointer = 0
+    for i in rows[r]:
+        if puzzle[i] != blockchar: pointer += 1
+        elif pointer != 0:
+            result.append(pointer)
+            pointer = 0
+    if pointer != 0: result.append(pointer)
+    return result
+
+def extractcol(puzzle, r):
+    result = []
+    pointer = 0
+    for i in cols[r]:
+        if puzzle[i] != blockchar: pointer += 1
+        elif pointer != 0:
+            result.append(pointer)
+            pointer = 0
+    if pointer != 0: result.append(pointer)
+    return result
+
+def extract(puzzle):
+    allwords = []
+    for i in range(h): allwords.append([j for j in extractrow(puzzle, i)])
+    for i in range(w): allwords.append([j for j in extractcol(puzzle, i)])
+    
+
 #-----------------Creation-----------------
 
 
