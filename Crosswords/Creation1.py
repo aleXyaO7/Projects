@@ -1,6 +1,6 @@
 import sys; args = sys.argv[1:]
-myList = open(args[2], 'r').read().splitlines()
-myWords = set(myList)
+#myList = open(args[2], 'r').read().splitlines()
+#myWords = set(myList)
 
 h, w = args[0].split('x')
 h, w = int(h), int(w)
@@ -271,9 +271,15 @@ def extractcol(puzzle, r):
 
 def extract(puzzle):
     allwords = []
-    for i in range(h): allwords.append([j for j in extractrow(puzzle, i)])
-    for i in range(w): allwords.append([j for j in extractcol(puzzle, i)])
-    
+    for i in range(h): 
+        for j in extractrow(puzzle, i): allwords.append(j)
+    for i in range(w): 
+        for j in extractcol(puzzle, i): allwords.append(j)
+    return allwords
+
+for i in conpuzzles: 
+    output(i)
+    print(extract(i))
 
 #-----------------Creation-----------------
 
