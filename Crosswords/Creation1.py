@@ -1,6 +1,6 @@
 import sys; args = sys.argv[1:]
-#myList = open(args[2], 'r').read().splitlines()
-#myWords = set(myList)
+myList = open(args[2], 'r').read().splitlines()
+myWords = set(myList)
 
 h, w = args[0].split('x')
 h, w = int(h), int(w)
@@ -277,12 +277,41 @@ def extract(puzzle):
         for j in extractcol(puzzle, i): allwords.append(j)
     return allwords
 
+def evaluate(wordlength):
+    return pow(wordlength, 2)
+
+finalpuz = ''
+minimum = pow(leng, 2)
+neededwords = []
 for i in conpuzzles: 
-    output(i)
-    print(extract(i))
+    total = 0
+    temp = extract(i)
+    for j in temp: total += evaluate(j)
+    if total < minimum: 
+        finalpuz = i
+        minimum = total
+        neededwords = temp
+lengths = {*neededwords}
 
 #-----------------Creation-----------------
 
+letter = 'abcdefghijklmnopqrstuvwxyz'
+words = {}
 
+def az(word):
+    for i in word:
+        if i not in letter: return False
+    return True
+
+def findwords(length):
+    wds = []
+    for i in myWords:
+        if len(i) == length and az(i): wds.append(i)
+    return wds
+
+for i in lengths:
+    words[i] = findwords(i)
+
+print(words)
 
 #Alexander Yao, Period 4, 2023
