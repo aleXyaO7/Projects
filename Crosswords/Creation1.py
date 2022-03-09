@@ -228,8 +228,15 @@ def valid(puzzle):
     if not floodfill(puzzle, numBlocks): return False
     return True
 
+def recurvalid(puzzle):
+    for i in range(h): 
+        if not rowcheck(puzzle, rows[i]): return False
+    for i in range(w): 
+        if not rowcheck(puzzle, cols[i]): return False
+    return True
+
 def bf(puzzle, numBlocks):
-    if not valid([*puzzle]): return ''
+    if not recurvalid([*puzzle]): return ''
     if numBlocks <= 0:
         if valid([*puzzle.replace(openchar, tempchar)]): pospuzzles.append(puzzle.replace(tempchar, openchar))
         return ''
@@ -250,23 +257,30 @@ prep(puzzle, numBlocks, conds)
 def extractrow(puzzle, r):
     result = []
     pointer = 0
+    start = 0
     for i in rows[r]:
         if puzzle[i] != blockchar: pointer += 1
         elif pointer != 0:
-            result.append(pointer)
+            result.append((r, start, pointer))
+            start = i + 1
             pointer = 0
-    if pointer != 0: result.append(pointer)
+        else: start += 1
+    if pointer != 0: result.append((r, start, pointer))
     return result
 
 def extractcol(puzzle, r):
     result = []
     pointer = 0
+    start = 0
     for i in cols[r]:
         if puzzle[i] != blockchar: pointer += 1
         elif pointer != 0:
-            result.append(pointer)
+            result.append((i, r, pointer))
+            start = i + 1
             pointer = 0
-    if pointer != 0: result.append(pointer)
+        else: start += 1
+    if pointer != 0: 
+        result.append((i, r, pointer))
     return result
 
 def extract(puzzle):
@@ -312,6 +326,6 @@ def findwords(length):
 for i in lengths:
     words[i] = findwords(i)
 
-print(words)
+
 
 #Alexander Yao, Period 4, 2023
