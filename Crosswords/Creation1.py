@@ -228,15 +228,8 @@ def valid(puzzle):
     if not floodfill(puzzle, numBlocks): return False
     return True
 
-def recurvalid(puzzle):
-    for i in range(h): 
-        if not rowcheck(puzzle, rows[i]): return False
-    for i in range(w): 
-        if not rowcheck(puzzle, cols[i]): return False
-    return True
-
 def bf(puzzle, numBlocks):
-    if not recurvalid([*puzzle]): return ''
+    if not valid([*puzzle]): return ''
     if numBlocks <= 0:
         if valid([*puzzle.replace(openchar, tempchar)]): pospuzzles.append(puzzle.replace(tempchar, openchar))
         return ''
@@ -254,63 +247,76 @@ def bf(puzzle, numBlocks):
 
 prep(puzzle, numBlocks, conds)
 
-def extractrow(puzzle, r):
-    result = []
-    pointer = 0
-    start = 0
-    for i in rows[r]:
-        if puzzle[i] != blockchar: pointer += 1
-        elif pointer != 0:
-            result.append((r, start, pointer))
-            start = i + 1
-            pointer = 0
-        else: start += 1
-    if pointer != 0: result.append((r, start, pointer))
-    return result
+def quickextractrow(puzzle, r):
+    return ''.join([puzzle[i] for i in rows[r]]).split(blockchar)
 
-def extractcol(puzzle, r):
-    result = []
-    pointer = 0
-    start = 0
-    for i in cols[r]:
-        if puzzle[i] != blockchar: pointer += 1
-        elif pointer != 0:
-            result.append((i, r, pointer))
-            start = i + 1
-            pointer = 0
-        else: start += 1
-    if pointer != 0: 
-        result.append((i, r, pointer))
-    return result
+def quickextractcol(puzzle, r):
+    return ''.join([puzzle[i] for i in cols[r]]).split(blockchar)
 
-def extract(puzzle):
+def quickextract(puzzle):
     allwords = []
     for i in range(h): 
-        for j in extractrow(puzzle, i): allwords.append(j)
+        for j in quickextractrow(puzzle, i): allwords.append(len(j))
     for i in range(w): 
-        for j in extractcol(puzzle, i): allwords.append(j)
+        for j in quickextractcol(puzzle, i): allwords.append(len(j))
     return allwords
 
 def evaluate(wordlength):
     return pow(wordlength, 2)
 
-finalpuz = ''
-minimum = pow(leng, 2)
-neededwords = []
+puzzles = []
 for i in conpuzzles: 
     total = 0
-    temp = extract(i)
+    temp = quickextract(i)
     for j in temp: total += evaluate(j)
-    if total < minimum: 
-        finalpuz = i
-        minimum = total
-        neededwords = temp
-lengths = {*neededwords}
+    puzzles.append((total, i))
+puzzles.sort()
 
 #-----------------Creation-----------------
 
 letter = 'abcdefghijklmnopqrstuvwxyz'
-words = {}
+
+def extractrow(puzzle, r):
+    words = []
+    flag = False
+    start = 0
+    for i in rows[r]:
+        if puzzle[i] != blockchar and not flag: 
+            start = i
+            flag = True
+        elif puzzle[i] == blockchar and flag:
+            words.append((r, start, 'H', i-start+1))
+    if flag:
+        words.append((r, start, 'H', w-start+1))
+    return words
+
+def extractcol(puzzle, r):
+    words = []
+    flag = False
+    start = 0
+    for i in cols[r]:
+        if puzzle[i] != blockchar and not flag: 
+            start = i
+            flag = True
+        elif puzzle[i] == blockchar and flag:
+            words.append((start, r, 'V', i-start+1))
+    if flag:
+        words.append((start, r, 'V', w-start+1))
+    return words
+
+def extract(puzzle):
+    allwords = []
+    for i in range(h): 
+        for a, b, c, j in extractrow(puzzle, i): allwords.append((a, b, c, j))
+    for i in range(w): 
+        for a, b, c, j in extractcol(puzzle, i): allwords.append((a, b, c, j))
+    return allwords
+
+def extractwords(lengths):
+    words = {}
+    for i in lengths:
+        words[i] = findwords(i)
+    return words
 
 def az(word):
     for i in word:
@@ -323,9 +329,9 @@ def findwords(length):
         if len(i) == length and az(i): wds.append(i)
     return wds
 
-for i in lengths:
-    words[i] = findwords(i)
-
-
+for t, finalpuz in puzzles:
+    lengths = extractwords(puzzles)
+    words = extractwords(lengths)
+    break
 
 #Alexander Yao, Period 4, 2023
