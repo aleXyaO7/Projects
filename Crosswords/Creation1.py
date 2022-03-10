@@ -280,36 +280,52 @@ def extractrow(puzzle, r):
     words = []
     flag = False
     start = 0
+    pointer = 0
     for i in rows[r]:
-        if puzzle[i] != blockchar and not flag: 
-            start = i
-            flag = True
+        if puzzle[i] != blockchar:
+            if not flag: 
+                start = i
+                flag = True
+                pointer = 1
+            else: pointer += 1
         elif puzzle[i] == blockchar and flag:
-            words.append((r, start, 'H', i-start+1))
+            words.append((start, 'H', pointer))
+            pointer = 0
+            flag = False
     if flag:
-        words.append((r, start, 'H', w-start+1))
+        words.append((start, 'H', pointer))
+        pointer = 0
+        flag = False
     return words
 
 def extractcol(puzzle, r):
     words = []
     flag = False
     start = 0
+    pointer = 0
     for i in cols[r]:
-        if puzzle[i] != blockchar and not flag: 
-            start = i
-            flag = True
+        if puzzle[i] != blockchar:
+            if not flag: 
+                start = i
+                flag = True
+                pointer = 1
+            else: pointer += 1
         elif puzzle[i] == blockchar and flag:
-            words.append((start, r, 'V', i-start+1))
+            words.append((start, 'V', pointer))
+            pointer = 0
+            flag = False
     if flag:
-        words.append((start, r, 'V', w-start+1))
+        words.append((start, 'V', pointer))
+        pointer = 0
+        flag = False
     return words
 
 def extract(puzzle):
     allwords = []
     for i in range(h): 
-        for a, b, c, j in extractrow(puzzle, i): allwords.append((a, b, c, j))
+        for a, b, j in extractrow(puzzle, i): allwords.append((a, b, j))
     for i in range(w): 
-        for a, b, c, j in extractcol(puzzle, i): allwords.append((a, b, c, j))
+        for a, b, j in extractcol(puzzle, i): allwords.append((a, b, j))
     return allwords
 
 def extractwords(lengths):
@@ -329,9 +345,13 @@ def findwords(length):
         if len(i) == length and az(i): wds.append(i)
     return wds
 
-for t, finalpuz in puzzles:
-    lengths = extractwords(puzzles)
+for t, puzzle in puzzles:
+    output(puzzle)
+    wordpos = extract(puzzle)
+    lengths = [c for a, b, c in wordpos]
     words = extractwords(lengths)
+    print(wordpos)
+    input()
     break
 
 #Alexander Yao, Period 4, 2023
