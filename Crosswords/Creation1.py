@@ -345,13 +345,22 @@ def findwords(length):
         if len(i) == length and az(i): wds.append(i)
     return wds
 
+def matchingword(puzzle, pos, dr, leng):
+    word = ''
+    if dr == 'H':
+        word = puzzle[pos:pos+leng]
+    else:
+        word = ''.join([puzzle[i] for i in range(pos, pos + leng * w, w)])
+
+def findmatching(word):
+    i = 0
+
 for t, puzzle in puzzles:
     output(puzzle)
     wordpos = extract(puzzle)
     lengths = [c for a, b, c in wordpos]
     words = extractwords(lengths)
-    print(wordpos)
-    input()
+    for a, b, c in wordpos: matchingword(puzzle, a, b, c)
     break
 
 #Alexander Yao, Period 4, 2023
