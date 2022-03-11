@@ -133,6 +133,7 @@ def prep(puzzle, numBlocks, conds):
             one, two = cond[:cond.find('x')], cond[cond.find('x') + 1:]
             r = int(one[1:])
             c, word = intscan(two)
+            word = word.lower()
             if one[0] == 'H' or one[0] == 'h': newp = hcond(newp, r, c, word)
             else: newp = vcond(newp, r, c, word)
         conpuzzles.append(newp)
@@ -275,6 +276,8 @@ puzzles.sort()
 #-----------------Creation-----------------
 
 letter = 'abcdefghijklmnopqrstuvwxyz'
+spword = {}
+awords = {}
 
 def extractrow(puzzle, r):
     words = []
@@ -329,21 +332,28 @@ def extract(puzzle):
     return allwords
 
 def extractwords(lengths):
-    words = {}
     for i in lengths:
-        words[i] = findwords(i)
-    return words
+        awords[i] = set()
+        for j in letter:
+            for k in range(i):
+                spword[(i, k, j)] = set()
+    for i in myWords:
+        leng = len(i)
+        if leng in lengths and az(i): 
+            awords[leng].add(i) 
+            for j in range(leng): spword[(leng, j, i[j])].add(i)
 
 def az(word):
     for i in word:
         if i not in letter: return False
     return True
 
-def findwords(length):
-    wds = []
-    for i in myWords:
-        if len(i) == length and az(i): wds.append(i)
-    return wds
+def findwords(word):
+    leng = len(word)
+    allwords = awords[leng]
+    for i in range(leng):
+        if word[i] != openchar: allwords = allwords & spword[(leng, i, word[i])]
+    return allwords
 
 def matchingword(puzzle, pos, dr, leng):
     word = ''
@@ -351,16 +361,81 @@ def matchingword(puzzle, pos, dr, leng):
         word = puzzle[pos:pos+leng]
     else:
         word = ''.join([puzzle[i] for i in range(pos, pos + leng * w, w)])
+    if word.find(openchar) == -1:
+        if word in awords[len(word)]: return {*word}
+        return set()
+    return findwords(word)
 
-def findmatching(word):
-    i = 0
+def placeword(puzzle, pos, dr, word, indexes, indices):
+    npuzzle = [*puzzle]
+    if dr == 'H':
+        for i in range(len(word)):
+            npuzzle[pos+i] = word[i]
+            for a, b, c in indices[pos+i]:
+                if (a, b, c) in indexes:
+                    indexes[(a, b, c)] -= 1
+    else:
+        for i in range(len(word)):
+            npuzzle[pos+i*w] = word[i]
+            for a, b, c in indices[pos+i]:
+                if (a, b, c) in indexes:
+                    indexes[(a, b, c)] -= 1
+    return ''.join(npuzzle), indexes
+
+def minkey(dct):
+    temp = []
+    for a, b, c in dct: temp.append((dct[i], a, b, c))
+    temp.sort()
+    return temp[0]
+
+def bf2(puzzle, indexes, indices, used):
+    t, a, b, c = minkey(indexes)
+    nind = indexes
+    nind.remove((a, b, c))
+    poswords = matchingword(puzzle, a, b, c)
+    if not poswords: return ''
+    for i in poswords:
+        if i not in used:
+            npuzzle, nind = placeword(puzzle, a, b, i, nind, indices)
+            nused = used
+            nused.add(i)
+            npuzzle = bf2(npuzzle, nind, nused)
+            if npuzzle: return npuzzle
+    return ''
+
+def increment(puzzle, indexes):
+    incre = {}
+    indice = {}
+    for a, b, c in indexes: incre[(a, b, c)] = 0
+    for i in range(leng):
+        if puzzle[i] == openchar:
+            indice[i] = []
+            pointer1 = i
+            pointer2 = i
+            while pointer1 % w != 0 and (pointer1-1) % w != w-1 and puzzle[pointer1-1] != blockchar:
+                pointer1 -= 1
+            while pointer2 % w != w-1 and (pointer2+1) % w != 0 and puzzle[pointer2+1] != blockchar:
+                pointer2 += 1
+            incre[(pointer1, 'H', pointer2 - pointer1 + 1)] += 1
+            indice[i].append((pointer1, 'H', pointer2 - pointer1 + 1))
+            pointer1 = i
+            pointer2 = i
+            while pointer1 >= w and puzzle[pointer1-w] != blockchar:
+                pointer1 -= w
+            while pointer2 < leng - w and puzzle[pointer2+w] != blockchar :
+                pointer2 += w
+            incre[(pointer1, 'V', (pointer2 - pointer1)//w + 1)] += 1
+            indice[i].append((pointer1, 'V', (pointer2 - pointer1)//w + 1))
+    return incre, indice
 
 for t, puzzle in puzzles:
     output(puzzle)
     wordpos = extract(puzzle)
     lengths = [c for a, b, c in wordpos]
-    words = extractwords(lengths)
-    for a, b, c in wordpos: matchingword(puzzle, a, b, c)
-    break
+    extractwords(lengths)
+    incre, indice = increment(puzzle, wordpos)
+    solved = bf2(puzzle, incre, indice, set())
+    output(solved)
+    input()
 
 #Alexander Yao, Period 4, 2023
