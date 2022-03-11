@@ -394,21 +394,17 @@ def minkey(dct):
 def bf2(puzzle, indexes, indices, used):
     if not indexes: return puzzle
     t, a, b, c = minkey(indexes)
-    nind = indexes
-    nind.pop((a, b, c))
+    indexes.pop((a, b, c))
     poswords = matchingword(puzzle, a, b, c)
     if not poswords: return ''
     for i in poswords:
         if i not in used:
-            npuzzle, nind = placeword(puzzle, a, b, i, nind, indices)
-            output(npuzzle)
-            print(nind)
-            print(i)
-            input()
+            npuzzle, nind = placeword(puzzle, a, b, i, indexes, indices)
             nused = used
             nused.add(i)
             npuzzle = bf2(npuzzle, nind, indices, nused)
             if npuzzle: return npuzzle
+
     return ''
 
 def increment(puzzle, indexes):
