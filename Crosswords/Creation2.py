@@ -1,5 +1,4 @@
 import sys; args = sys.argv[1:]
-import time, random
 myList = open(args[0], 'r').read().splitlines()
 myWords = set(myList)
 
@@ -66,44 +65,7 @@ for i in range(leng):
     if i-3*w >= 0: nbr[i-3*w] = [i-2*w, i-w, leng-i+2*w-1, leng-i+w-1]
     if i % w > 2: nbr[i-3] = [i-1, i-2, leng-i, leng-i+1]
     if i % w < w - 3: nbr[i+3] = [i+1, i+2, leng-i-3, leng-i-2]
-    if i+2*w < leng: nbr[i+2*w] = [i+w, leng-i-w-1]
-    if i-2*w >= 0: nbr[i-2*w] = [i-w, leng-i+w-1]
-    if i % w > 1: nbr[i-2] = [i-1, leng-i]
-    if i % w < w - 2: nbr[i+2] = [i+1, leng-i-2]
     blocknbrs[i] = nbr
-
-skip = [*range(leng//2)]
-random.shuffle(skip)
-
-blockedge = {}
-for i in range(leng):
-    blockedge[i] = []
-    if i+3*w >= leng: 
-        blockedge[i].append(i+w)
-        blockedge[i].append(leng-i-w-1)
-        blockedge[i].append(i+2*w)
-        blockedge[i].append(leng-i-2*w-1)
-    if i-3*w < 0: 
-        blockedge[i].append(i-w)
-        blockedge[i].append(leng-i+w-1)
-        blockedge[i].append(i-2*w)
-        blockedge[i].append(leng-i+2*w-1)
-    if i % w == 1: 
-        blockedge[i].append(i-1)
-        blockedge[i].append(leng-i)
-    if i % w == w - 2: 
-        blockedge[i].append(i+1)
-        blockedge[i].append(leng-i-2)
-    if i % w == 2: 
-        blockedge[i].append(i-1)
-        blockedge[i].append(leng-i)
-        blockedge[i].append(i-2)
-        blockedge[i].append(leng-i+1)
-    if i % w == w - 3: 
-        blockedge[i].append(i+1)
-        blockedge[i].append(leng-i-2)
-        blockedge[i].append(i+2)
-        blockedge[i].append(leng-i-3)
 
 conds = args[3:]
 
@@ -196,14 +158,8 @@ def addtemp(puzzle, ind, n, ch):
                 for j in blocknbrs[ind][i]:
                     if lst[j] == tempchar: return puzzle, n, -1
                     if lst[j] == openchar:
-                        lst, newn, t = addtemp(''.join(lst), j, newn, blockchar)
-                        lst = [*lst]
-        for i in blockedge[ind]:
-            if i >= 0 and i < leng:
-                if lst[i] == tempchar: return puzzle, n, -1
-                if lst[i] == openchar:
-                    lst, newn, t = addtemp(''.join(lst), i, newn, blockchar)
-                    lst = [*lst]
+                        lst[j] = blockchar
+                        newn -= 1 
         
     else:
         if ind != leng // 2:
@@ -227,11 +183,6 @@ def blocks(puzzle, numBlocks):
         return puzzle.replace(openchar, blockchar)
     if n % 2 == 1: puzzle, n, t = addtemp(puzzle, leng//2, n, blockchar)
     bf(puzzle, n)
-
-def findchar(puzzle):
-    for i in skip: 
-        if puzzle[i] == openchar: return i
-    return -1
 
 def rowcheck(puzzle, lst):
     flag = 0
@@ -280,13 +231,10 @@ def valid(puzzle):
 
 def bf(puzzle, numBlocks):
     if not valid([*puzzle]): return ''
-    if numBlocks < 0: return ''
-    if numBlocks == 0:
-        if valid([*puzzle.replace(openchar, tempchar)]): 
-            pospuzzles.append(puzzle.replace(tempchar, openchar))
-        if len(pospuzzles) > 10000: return -1
+    if numBlocks <= 0:
+        if valid([*puzzle.replace(openchar, tempchar)]): pospuzzles.append(puzzle.replace(tempchar, openchar))
         return ''
-    idx = findchar(puzzle)
+    idx = puzzle.find(openchar)
     if idx == -1: return ''
     npuzzle, n, t = addtemp(puzzle, idx, numBlocks, blockchar)
     if t == 0:
@@ -315,17 +263,15 @@ def quickextract(puzzle):
     return allwords
 
 def evaluate(wordlength):
-    return pow(wordlength, 3)
+    return pow(wordlength, 2)
 
 puzzles = []
-for i in conpuzzles:
+for i in conpuzzles: 
     total = 0
     temp = quickextract(i)
     for j in temp: total += evaluate(j)
     puzzles.append((total, i))
 puzzles.sort()
-print(time.process_time())
-
 
 #-----------------Creation-----------------
 
@@ -445,16 +391,10 @@ def minkey(dct):
     temp.sort()
     return temp[0]
 
-def maxkey(dct):
-    temp = []
-    for a, b, c in dct: temp.append((dct[(a, b, c)], a, b, c))
-    temp.sort()
-    return temp[len(temp)-1]
-
-def dictcopy(pos):
-    return {k:pos[k] for k in pos}
-
 def bf2(puzzle, indexes, indices, used):
+    output(puzzle)
+    print(indexes)
+    input()
     if not indexes: return puzzle
     t, a, b, c = minkey(indexes)
     indexes.pop((a, b, c))
@@ -462,11 +402,11 @@ def bf2(puzzle, indexes, indices, used):
     if not poswords: return ''
     for i in poswords:
         if i not in used:
-            npuzzle, nind = placeword(puzzle, a, b, i, dictcopy(indexes), indices)
-            used.add(i)
-            npuzzle = bf2(npuzzle, nind, indices, used)
+            npuzzle, nind = placeword(puzzle, a, b, i, indexes, indices)
+            nused = used
+            nused.add(i)
+            npuzzle = bf2(npuzzle, nind, indices, nused)
             if npuzzle: return npuzzle
-            used.remove(i)
 
     return ''
 
@@ -507,5 +447,4 @@ for t, puzzle in puzzles:
         output(solved)
         break
 
-print(time.process_time())
 #Alexander Yao, Period 4, 2023
