@@ -414,12 +414,18 @@ def findwords(word):
     allwords = awords[leng]
     for i in range(leng):
         if word[i] != openchar: allwords = allwords & spword[(leng, i, word[i])]
-    return rankwords(allwords, leng)
+    return rankwords(allwords, word)
 
-def rankwords(lst, leng):
+def rankwords(lst, word):
     rank = []
+    empty = []
+    for i in range(len(word)):
+        if word[i] != openchar: empty.append(i)
     for i in lst:
-        rank.append((alengths[i], i))
+        total = 10000
+        for j in empty:
+            total = min(total, splengths[(len(word), j, i[j])])
+        rank.append((total, i))
     rank = sorted(rank)[::-1]
     result = []
     for i, j in rank: result.append(j)
