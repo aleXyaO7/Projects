@@ -27,4 +27,4 @@ def az(word):
     return True
 
 extractwords()
-print(len(word))
+print([1,2] & [2, 3])

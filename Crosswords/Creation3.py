@@ -449,13 +449,13 @@ def placeword(puzzle, pos, dr, word, indexes, indices):
             npuzzle[pos+i] = word[i]
             for a, b, c in indices[pos+i]:
                 if (a, b, c) in indexes:
-                    indexes[(a, b, c)] = matchingword(makeword(puzzle, a, b, c))
+                    indexes[(a, b, c)] = rankwords({*indexes[(a, b, c)]} & spword[(c, (pos+i-a)//w, word[i])])
     else:
         for i in range(len(word)):
             npuzzle[pos+i*w] = word[i]
             for a, b, c in indices[pos+i*w]:
                 if (a, b, c) in indexes:
-                    indexes[(a, b, c)] = matchingword(makeword(puzzle, a, b, c))
+                    indexes[(a, b, c)] = rankwords({*indexes[(a, b, c)]} & spword[(c, pos+i*w-a, word[i])])
     return ''.join(npuzzle), indexes
 
 def minkey(dct):
@@ -516,6 +516,29 @@ def bf2(puzzle, indexes, indices, used):
             used.remove(i)
     return ''
 
+def tempplace(puzzle, indexes):
+    npuzzle = [*puzzle]
+    seen = set()
+    for pos, dr, length in indexes:
+        word = ''
+        if dr == 'H':
+            word = puzzle[pos:pos+length]
+        else:
+            word = ''.join([puzzle[i] for i in range(pos, pos + length * w, w)])
+        lst = matchingword(word)
+        for i in lst: 
+            if i not in seen:
+                word = i
+                seen.add(i)
+                break
+        if dr == 'H':
+            for i in range(len(word)):
+                npuzzle[pos+i] = word[i]
+        else:
+            for i in range(len(word)):
+                npuzzle[pos+i*w] = word[i]
+    output(''.join(npuzzle))
+
 for t, puzzle in puzzles:
     output(puzzle)
     wordpos = extract(puzzle)
@@ -525,6 +548,7 @@ for t, puzzle in puzzles:
     indice = makeindice(puzzle)
     incre = increment(puzzle, wordpos)
     print(time.process_time())
+    tempplace(puzzle, incre)
     solved = bf2(puzzle, incre, indice, set())
     if solved:
         print(time.process_time())
