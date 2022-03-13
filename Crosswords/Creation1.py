@@ -512,6 +512,24 @@ def increment(puzzle, indexes):
             indice[i].append((pointer1, 'V', (pointer2 - pointer1)//w + 1))
     return incre, indice
 
+def tempplace(puzzle, indexes):
+    npuzzle = [*puzzle]
+    seen = set()
+    for pos, dr, length in indexes:
+        lst = matchingword(puzzle, pos, dr, length)
+        for i in lst: 
+            if i not in seen:
+                word = i
+                seen.add(i)
+                break
+        if dr == 'H':
+            for i in range(len(word)):
+                npuzzle[pos+i] = word[i]
+        else:
+            for i in range(len(word)):
+                npuzzle[pos+i*w] = word[i]
+    output(''.join(npuzzle))
+
 for t, puzzle in puzzles:
     wordpos = extract(puzzle)
     lengths = [c for a, b, c in wordpos]
@@ -519,6 +537,7 @@ for t, puzzle in puzzles:
     print(time.process_time())
     incre, indice = increment(puzzle, wordpos)
     print(time.process_time())
+    tempplace(puzzle, incre)
     solved = bf2(puzzle, incre, indice, set())
     if solved:
         print(time.process_time())
