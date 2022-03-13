@@ -1,7 +1,7 @@
 import sys; args = sys.argv[1:]
-import time, random
 myList = open(args[0], 'r').read().splitlines()
 myWords = set(myList)
+import random, time
 
 h, w = args[1].split('x')
 h, w = int(h), int(w)
@@ -221,10 +221,10 @@ def addtemp(puzzle, ind, n, ch):
     return ''.join(lst), newn, 0
 
 def blocks(puzzle, numBlocks):
-    if puzzle.find(openchar) == -1: return puzzle.replace(tempchar, openchar)
+    if puzzle.find(openchar) == -1: puzzle.replace(tempchar, openchar)
     n = numBlocks
-    if n == puzzle.count(openchar):
-        return puzzle.replace(openchar, blockchar)
+    if n == puzzle.count(openchar) + puzzle.count(tempchar):
+        puzzle.replace(openchar, blockchar)
     if n % 2 == 1: puzzle, n, t = addtemp(puzzle, leng//2, n, blockchar)
     bf(puzzle, n)
 
@@ -324,14 +324,14 @@ for i in conpuzzles:
     for j in temp: total += evaluate(j)
     puzzles.append((total, i))
 puzzles.sort()
-print(time.process_time())
-
 
 #-----------------Creation-----------------
 
 letter = 'abcdefghijklmnopqrstuvwxyz'
 spword = {}
+splengths = {}
 awords = {}
+alengths = {}
 
 def extractrow(puzzle, r):
     words = []
@@ -396,6 +396,13 @@ def extractwords(lengths):
         if leng in lengths and az(i): 
             awords[leng].add(i) 
             for j in range(leng): spword[(leng, j, i[j])].add(i)
+    for i, j, k in spword: splengths[(i, j, k)] = len(spword[(i, j, k)])
+    for k in awords:
+        for i in awords[k]:
+            total = 10000
+            for j in range(len(i)):
+                total = min(total, splengths[(len(i), j, i[j])])
+            alengths[i] = total
 
 def az(word):
     for i in word:
@@ -407,7 +414,16 @@ def findwords(word):
     allwords = awords[leng]
     for i in range(leng):
         if word[i] != openchar: allwords = allwords & spword[(leng, i, word[i])]
-    return allwords
+    return rankwords(allwords, leng)
+
+def rankwords(lst, leng):
+    rank = []
+    for i in lst:
+        rank.append((alengths[i], i))
+    rank = sorted(rank)[::-1]
+    result = []
+    for i, j in rank: result.append(j)
+    return result
 
 def matchingword(puzzle, pos, dr, leng):
     word = ''
@@ -467,7 +483,6 @@ def bf2(puzzle, indexes, indices, used):
             npuzzle = bf2(npuzzle, nind, indices, used)
             if npuzzle: return npuzzle
             used.remove(i)
-
     return ''
 
 def increment(puzzle, indexes):
@@ -501,11 +516,13 @@ for t, puzzle in puzzles:
     wordpos = extract(puzzle)
     lengths = [c for a, b, c in wordpos]
     extractwords(lengths)
+    print(time.process_time())
     incre, indice = increment(puzzle, wordpos)
+    print(time.process_time())
     solved = bf2(puzzle, incre, indice, set())
     if solved:
+        print(time.process_time())
         output(solved)
         break
 
-print(time.process_time())
 #Alexander Yao, Period 4, 2023
