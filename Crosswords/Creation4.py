@@ -327,7 +327,7 @@ puzzles.sort()
 
 #-----------------Creation-----------------
 
-letter = 'abcdefghijklmnopqrstuvwxyz'
+letter = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
 spword = {}
 splengths = {}
 awords = {}
@@ -394,6 +394,7 @@ def extractwords(lengths):
     for i in myWords:
         leng = len(i)
         if leng in lengths and az(i): 
+            i = i.lower()
             awords[leng].add(i) 
             for j in range(leng): spword[(leng, j, i[j])].add(i)
     for i, j, k in spword: splengths[(i, j, k)] = len(spword[(i, j, k)])
@@ -537,21 +538,27 @@ def tempplace(puzzle, indexes):
         else:
             for i in range(len(word)):
                 npuzzle[pos+i*w] = word[i]
-    output(''.join(npuzzle))
+    return ''.join(npuzzle)
+
+t, temppuzzle = puzzles[0]
+wordpos = extract(temppuzzle)
+lengths = [c for a, b, c in wordpos]
+extractwords(lengths)
+indice = makeindice(temppuzzle)
+incre = increment(temppuzzle, wordpos)
+temppuzzle = tempplace(temppuzzle, incre)
+
 
 for t, puzzle in puzzles:
     output(puzzle)
+    output(temppuzzle)
     wordpos = extract(puzzle)
     lengths = [c for a, b, c in wordpos]
     extractwords(lengths)
-    print(time.process_time())
     indice = makeindice(puzzle)
     incre = increment(puzzle, wordpos)
-    print(time.process_time())
-    tempplace(puzzle, incre)
     solved = bf2(puzzle, incre, indice, set())
     if solved:
-        print(time.process_time())
         output(solved)
         break
 
