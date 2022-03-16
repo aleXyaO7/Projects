@@ -615,5 +615,4 @@ for t, puzzle in puzzles:
         output(solved)
         break
 
-print(time.process_time())
 #Alexander Yao, Period 4, 2023
