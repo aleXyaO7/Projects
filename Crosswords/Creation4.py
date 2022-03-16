@@ -204,7 +204,6 @@ def addtemp(puzzle, ind, n, ch):
                 if lst[i] == openchar:
                     lst, newn, t = addtemp(''.join(lst), i, newn, blockchar)
                     lst = [*lst]
-        
     else:
         if ind != leng // 2:
             lst[rev] = ch   
@@ -268,20 +267,24 @@ def scanfour(puzzle, ind):
     if flag: fours.append((p - ind)//w)
     return fours
 
-def findchar(puzzle):
+def maxplaced(puzzle, ind, n):
+    npuzzle, newn, t = addtemp(puzzle, ind, n, blockchar)
+    if t == 0: return n - newn
+    else: return leng
+
+def findchar(puzzle, n):
     fours = []
     for i in range(leng//2): 
-        if puzzle[i] == openchar and puzzle[leng-i-1] == openchar:
+        if puzzle[i] == openchar: 
             total = 0
             for j in scanfour(puzzle, i):
-                if j <= 2: total -= pow(j + 1, 9)
-                else: total += pow(i, 2)
+                if j <= 2: total -= pow(j + 2, 5)
+                else: total += pow(j, 2)
+            total -= pow(maxplaced(puzzle, i, n), 2)
             fours.append((total, i))
     if not fours: return -1
     fours.sort()
     a, b = fours[len(fours) - 1]
-    p = [*puzzle]
-    p[b] = '*'
     return b
 
 def rowcheck(puzzle, lst):
@@ -337,7 +340,7 @@ def bf(puzzle, numBlocks):
             pospuzzles.append(puzzle.replace(tempchar, openchar))
         if len(pospuzzles) > 1000: return -1
         return ''
-    idx = findchar(puzzle)
+    idx = findchar(puzzle, numBlocks)
     if idx == -1: return ''
     npuzzle, n, t = addtemp(puzzle, idx, numBlocks, blockchar)
     if t == 0:
@@ -599,7 +602,6 @@ indice = makeindice(temppuzzle)
 incre = increment(temppuzzle, wordpos)
 temppuzzle = tempplace(temppuzzle, incre)
 
-
 for t, puzzle in puzzles:
     output(puzzle)
     output(temppuzzle)
@@ -613,4 +615,5 @@ for t, puzzle in puzzles:
         output(solved)
         break
 
+print(time.process_time())
 #Alexander Yao, Period 4, 2023
