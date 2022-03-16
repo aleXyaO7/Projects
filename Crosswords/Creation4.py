@@ -228,10 +228,61 @@ def blocks(puzzle, numBlocks):
     if n % 2 == 1: puzzle, n, t = addtemp(puzzle, leng//2, n, blockchar)
     bf(puzzle, n)
 
+def scanfour(puzzle, ind):
+    fours = []
+    p = ind
+    flag = True
+    while p % w != 0:
+        if puzzle[p] == blockchar: 
+            fours.append(ind - p - 1)
+            flag = False
+            break
+        p -= 1
+    if flag: fours.append(ind - p)
+    p = ind
+    flag = True
+    while p % w != w - 1:
+        if puzzle[p] == blockchar: 
+            fours.append(p - ind - 1)
+            flag = False
+            break
+        p += 1
+    if flag: fours.append(p - ind)
+    p = ind
+    flag = True
+    while p > w:
+        if puzzle[p] == blockchar: 
+            fours.append((ind - p)//w - 1)
+            flag = False
+            break
+        p -= w
+    if flag: fours.append((ind - p)//w)
+    p = ind
+    flag = True
+    while p < leng - w:
+        if puzzle[p] == blockchar: 
+            fours.append((p - ind)//w - 1)
+            flag = False
+            break
+        p += w
+    if flag: fours.append((p - ind)//w)
+    return fours
+
 def findchar(puzzle):
-    for i in skip: 
-        if puzzle[i] == openchar: return i
-    return -1
+    fours = []
+    for i in range(leng//2): 
+        if puzzle[i] == openchar and puzzle[leng-i-1] == openchar:
+            total = 0
+            for j in scanfour(puzzle, i):
+                if j <= 2: total -= pow(j + 1, 9)
+                else: total += pow(i, 2)
+            fours.append((total, i))
+    if not fours: return -1
+    fours.sort()
+    a, b = fours[len(fours) - 1]
+    p = [*puzzle]
+    p[b] = '*'
+    return b
 
 def rowcheck(puzzle, lst):
     flag = 0
@@ -284,7 +335,7 @@ def bf(puzzle, numBlocks):
     if numBlocks == 0:
         if valid([*puzzle.replace(openchar, tempchar)]): 
             pospuzzles.append(puzzle.replace(tempchar, openchar))
-        if len(pospuzzles) > 10000: return -1
+        if len(pospuzzles) > 1000: return -1
         return ''
     idx = findchar(puzzle)
     if idx == -1: return ''
