@@ -1,7 +1,7 @@
 import sys; args = sys.argv[1:]
 myList = open(args[0], 'r').read().splitlines()
 myWords = set(myList)
-import random, time
+import time
 
 h, w = args[1].split('x')
 h, w = int(h), int(w)
@@ -71,9 +71,6 @@ for i in range(leng):
     if i % w > 1: nbr[i-2] = [i-1, leng-i]
     if i % w < w - 2: nbr[i+2] = [i+1, leng-i-2]
     blocknbrs[i] = nbr
-
-skip = [*range(leng//2)]
-random.shuffle(skip)
 
 blockedge = {}
 for i in range(leng):
