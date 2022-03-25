@@ -3,7 +3,8 @@ import nltk
 myList = open(args[0], 'r').read()
 t = nltk.word_tokenize(myList)
 
-print(t)
+punctuation = ',.?:;\'\"()-!'
+contractions = ['n\'t']
 
 flag = False
 spoken = ''
@@ -16,6 +17,8 @@ for i in t:
         allspoken.append(spoken)
         spoken = ''
     elif flag:
-        spoken = spoken + i + ' '
+        if i[0] not in punctuation and i not in contractions:
+            spoken = spoken + ' ' + i
+        else: spoken = spoken + i
 
-print(t)
+print(allspoken)
