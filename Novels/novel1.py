@@ -1,8 +1,6 @@
 import sys; args = sys.argv[1:]
 import nltk, numpy
 from nltk.tag import pos_tag
-from nltk.corpus import state_union
-from nltk.tokenize import PunktSentenceTokenizer
 myList = open(args[0], 'r').read()
 sentences = nltk.sent_tokenize(myList)
 
