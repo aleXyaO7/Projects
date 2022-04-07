@@ -6,6 +6,7 @@ sentences = nltk.sent_tokenize(myList)
 
 allsent = []
 allspoken = {}
+charspoken = []
 first = {}
 last = {}
 nick = {}
@@ -21,8 +22,6 @@ def findspoken(myList):
         if i == '``': 
             flag = True
         elif i == '\'\'' and flag:
-            print(spoken)
-            print(0)
             flag = False
             allspoken[pointer] = spoken
             if spoken[len(spoken) - 1] == ',': sent += ' @' + str(pointer)
@@ -102,4 +101,22 @@ def findcharacters(sentences):
 
 allchars = findcharacters(sentences)
 findspoken(myList)
-print(allsent)
+
+for t in allsent:
+    if '@' in t:
+        chunk = nltk.word_tokenize(t)
+        newchunk = []
+        pointer = 0
+        speaker = ''
+        spoken = []
+        while pointer < len(chunk):
+            a, b = chunk[pointer]
+            
+            if a == '@':
+                backpointer = pointer
+                pointer += 1
+                c, d = chunk[pointer]
+                spoken.append(int(c))
+                while backpointer >= 0:
+                    i = 1
+
