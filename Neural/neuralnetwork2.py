@@ -3,7 +3,7 @@ myList = open(args[0], 'r').read().splitlines()
 import math
 
 def randweights(x):
-    return [0.5 for i in range(x)]
+    return [1 for i in range(x)]
 
 def simulate(inputs, weights, layers):
     nn = []
@@ -55,6 +55,12 @@ def sigmoid(x):
 def divsigmoid(x):
     return sigmoid(x)/(1-sigmoid(x))
 
+def partialfinal(output, x, weight):
+    return (output - x * weight) * x
+
+def gradientfinal(outputs, xs, weights):
+    return [partialfinal(outputs[i], xs[i], weights[i]) for i in range(len(outputs))]
+
 def printnn(layers, weights):
     print('Layer counts', ' '.join([str(i) for i in layers]))
     for i in weights:
@@ -62,6 +68,10 @@ def printnn(layers, weights):
 
 inputs, outputs, layers, weights = creation(myList)
 weights = [randweights(len(i)) for i in weights]
-nn, output = simulate(inputs[0], weights, layers)
-printnn(layers, weights)
+for j in range(len(inputs) * 1000):
+    i = j % len(inputs)
+    nn, output = simulate(inputs[i], weights, layers)
+    gra = gradientfinal(outputs[i], nn[-2], weights[-1])
+    for j in range(len(gra)): weights[-1][j] += .01 * gra[j]
+    printnn(layers, weights)
 #Alexander Yao, Period 4, 2023
