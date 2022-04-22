@@ -1,14 +1,16 @@
 import sys; args = sys.argv[1:]
 myList = open(args[0], 'r').read().splitlines()
-import math
+import math, random
 
 def randweights(x):
-    return [1 for i in range(x)]
+    return [random.randint(1, 1000)/1000 for i in range(x)]
 
 def simulate(inputs, weights, layers):
     nn = []
+    y = []
     for i in layers:
         nn.append([0 for j in range(i)])
+        y.append([])
     for i in range(len(inputs)):
         nn[0][i] += inputs[i]
     for i in range(1, len(layers) - 1):
@@ -17,10 +19,11 @@ def simulate(inputs, weights, layers):
         for j in range(lencur):
             for k in range(lenprev):
                 nn[i][j] += nn[i-1][k] * weights[i-1][j*lenprev+k]
+            y[i].append(nn[i][j])
             nn[i][j] = sigmoid(nn[i][j])
     for i in range(len(nn[-1])):
         nn[-1][i] += nn[-2][i] * weights[-1][i]
-    return nn, nn[-1]
+    return nn, nn[-1], y
 
 def creation(myList):
     inputs = []
@@ -61,6 +64,15 @@ def partialfinal(output, x, weight):
 def gradientfinal(outputs, xs, weights):
     return [partialfinal(outputs[i], xs[i], weights[i]) for i in range(len(outputs))]
 
+def errorfinal(output, y, weight):
+    return (output - y) * weight * divsigmoid(y)
+
+def partialpenult(x, error):
+    return x * error
+
+def gradientpenult(xs, ers, i, j):
+    return [partialpenult(xs[x], ers[y]) for x in range(i) for y in range(j)]
+
 def printnn(layers, weights):
     print('Layer counts', ' '.join([str(i) for i in layers]))
     for i in weights:
@@ -68,10 +80,14 @@ def printnn(layers, weights):
 
 inputs, outputs, layers, weights = creation(myList)
 weights = [randweights(len(i)) for i in weights]
-for j in range(len(inputs) * 1000):
-    i = j % len(inputs)
-    nn, output = simulate(inputs[i], weights, layers)
-    gra = gradientfinal(outputs[i], nn[-2], weights[-1])
+
+def learn(inputs, weights, layers, output):
+    nn, outputs, y = simulate(inputs, weights, layers)
+    gra = gradientfinal(output, nn[-2], weights[-1])
     for j in range(len(gra)): weights[-1][j] += .01 * gra[j]
+    er = []
+    for j in range(len(outputs[0])): er.append(errorfinal())
     printnn(layers, weights)
+
+learn(inputs[0], weights, layers, outputs[0])
 #Alexander Yao, Period 4, 2023
