@@ -59,39 +59,22 @@ def sigmoid(x):
 def divsigmoid(x):
     return sigmoid(x)/(1-sigmoid(x))
 
-def partialfinal(output, x, weight):
-    return (output - x * weight) * x
+def partial(x, err):
+    return -x * err
 
-def gradientfinal(outputs, xs, weights):
-    return [partialfinal(outputs[i], xs[i], weights[i]) for i in range(len(outputs))]
+def error(nn, ys, weights, preverr, layer, output):
+    errs = []
+    if layer == len(nn) - 1:
+        for i in range(len(nn[layer])):
+            errs.append((output[i] - ys[layer][i]) * weights[layer][i] * divsigmoid(ys[layer][i]))
+    else:
+        for i in range(len(nn[layer])):
+            errs.append(sum([preverr[j] * weights[layer + 1][i + j * len(nn[layer])] for j in range(len(nn[layer+1]))]) * divsigmoid(ys[layer][i]))
+    return errs
 
-def errorfinal(output, y, weight):
-    return (output - y) * weight * divsigmoid(y)
-
-def partialpenult(x, error):
-    return x * error
-
-def gradientpenult(xs, ers):
-    return [partialpenult(xs[x], ers[y]) for x in range(len(xs)) for y in range(len(ers))]
-
-def printnn(layers, weights):
-    print('Layer counts', ' '.join([str(i) for i in layers]))
-    for i in weights:
-        print(' '.join([str(j) for j in i]))
-
-inputs, outputs, layers, weights = creation(myList)
-weights = [randweights(len(i)) for i in weights]
-
-def learn(inputs, weights, layers, output):
-    nn, outputs, y = simulate(inputs, weights, layers)
-    gra = gradientfinal(output, nn[-2], weights[-1])
-    for j in range(len(gra)): weights[-1][j] += .01 * gra[j]
-    nn, outputs, y = simulate(inputs, weights, layers)
-    er = []
-    for j in range(len(weights[-1])): er.append(errorfinal(output[j], y[-1][j], weights[-1][j]))
-    gra = gradientpenult(nn[-2], er)
-    for j in range(len(gra)): weights[-2][j] += .01 * gra[j]
-    printnn(layers, weights)
-
-for i in range(10000): learn(inputs[0], weights, layers, outputs[0])
-#Alexander Yao, Period 4, 2023
+def backprop(nn, ys, weights, output):
+    back, errs = [[] for i in range(len(nn) - 1)], []
+    errs.append([output[i] - ys[-1][i] for i in range(len(output))])
+    for i in range(len(output)):
+        back[-1].append(partial(nn[-2][i], errs[-1][i]))
+    
