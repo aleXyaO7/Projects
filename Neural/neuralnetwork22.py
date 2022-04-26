@@ -77,11 +77,18 @@ def error(nn, ys, weights, preverr, layer, output):
     return errs
 
 def backprop(nn, ys, weights, output):
+    print(nn)
+    print(ys)
+    print(weights)
+    input()
     back, errs = [[] for i in range(len(nn))], []
     errs.append([output[i] - ys[-1][i] for i in range(len(output))])
     for i in range(len(output)):
         back[-1].append(partial(nn[-1][i], errs[-1][i]))
     errs.append([weights[-1][i] * errs[-1][i] * divsigmoid(ys[-1][i]) for i in range(len(nn[-1]))])
+    print(back)
+    print(errs)
+    input()
     for k in range(len(weights) - 2, 0, -1):
         n1 = len(nn[k])
         n0 = len(ys[k])
@@ -95,17 +102,26 @@ def backprop(nn, ys, weights, output):
                 total += weights[k][j * len(nn[j]) + i] * errs[-1][j]
             temp.append(total * divsigmoid(y[k-1][i]))
         errs.append(temp)
+        print(back)
+        print(errs)
+        input()
     n1 = len(nn[0])
     n0 = len(ys[0])
     for j in range(n0):
         for i in range(n1):
             back[0].append(partial(nn[0][i], errs[-1][j]))
+    print(back)
+    print(errs)
+    input()
     for i in range(len(back)):
         s = math.sqrt(dot(back[i], back[i]))
         if s != 0:
             k = [j/s * .01 for j in back[i]]
             for j in range(len(back[i])):
                 weights[i][j] += k[j]
+    print(back)
+    print(errs)
+    input()
     return weights
 
 def printnn(layers, weights):
