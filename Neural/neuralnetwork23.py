@@ -1,3 +1,4 @@
+from http.client import TEMPORARY_REDIRECT
 import sys; args = sys.argv[1:]
 myList = open(args[0], 'r').read().splitlines()
 import math, random
@@ -69,9 +70,29 @@ def dot(lst1, lst2):
 def error(nn, ys, weights, output):
     errs = []
     errs.append([output[i] - ys[-1][i] for i in range(len(ys[-1]))])
-    errs.append([errs[-1][i] * weights[-1][i] * divsigmoid(ys[-1][i]) for i in range(len(ys[-1]))])
+    temp = []
+    for i in range(len(ys[-1])):
+        temp.append(errs[-1][i] * weights[-1][i] * divsigmoid(ys[-2][i]))
+    errs.append(temp)
+    temp = []
+    sums = []
     for k in range(len(nn)-2, 0, -1):
-        errs.append([divsigmoid(ys[k-1][i]) * sum([weights[k][i*len(nn[k+1])+j] * errs[-1][j] for j in range(len(nn[k+1]))]) for i in range(len(nn[k]))])
+        for i in range(len(nn[k])):
+            for j in range(len(nn[k+1])):
+                print(weights, errs)
+                print(weights[k][i*len(nn[k+1])+j], errs[-1][j])
+                input()
+                sums.append(weights[k][i*len(nn[k+1])+j] * errs[-1][j])
+            print(sums)
+            print(divsigmoid(ys[k-1][i]))
+            input()
+            temp.append(divsigmoid(ys[k-1][i]) * sum(sums))
+            sums = []
+        errs.append(temp)
+        temp = []
+    print(errs)
+    print(0, 0, 0)
+    input()
     return errs
 
 def update(nn, errs):
