@@ -25,7 +25,7 @@ def simulate(inputs, weights, layers):
         y[-1].append(nn[-2][i] * weights[-1][i])
     nn.pop()
     y.pop(0)
-    return nn, nn[-1], y
+    return nn, y
 
 def creation(myList):
     inputs = []
@@ -66,36 +66,28 @@ def partial(x, err):
 def dot(lst1, lst2):
     return sum([lst1[i] * lst2[i] for i in range(len(lst1))])
 
+def error(nn, ys, weights, output):
+    errs = []
+    errs.append([output[i] - ys[-1][i] for i in range(len(ys[-1]))])
+    errs.append([errs[-1][i] * weights[-1][i] * divsigmoid(ys[-1][i]) for i in range(len(ys[-1]))])
+    for k in range(len(nn)-2, 0, -1):
+        errs.append([divsigmoid(ys[k-1][i]) * sum([weights[k][i*len(nn[k+1])+j] * errs[-1][j] for j in range(len(nn[k+1]))]) for i in range(len(nn[k]))])
+    return errs
+
+def update(nn, errs):
+    partials = []
+    for k in range(len(nn)-1):
+        partials.append([100*nn[k][i] * errs[k][j] for i in range(len(nn[k])) for j in range(len(nn[k + 1]))])
+    partials.append([100*nn[-1][i] * errs[-1][i] for i in range(len(nn[-1]))])
+    return partials
+
 def backprop(nn, ys, weights, output):
-    back, errs = [[] for i in range(len(nn))], []
-    errs.append([output[i] - ys[-1][i] for i in range(len(output))])
-    for i in range(len(output)):
-        back[-1].append(partial(nn[-1][i], errs[-1][i]))
-    errs.append([weights[-1][i] * errs[-1][i] * divsigmoid(ys[-1][i]) for i in range(len(nn[-1]))])
-    for k in range(len(weights) - 2, 0, -1):
-        n1 = len(nn[k])
-        n0 = len(ys[k])
-        for j in range(n0):
-            for i in range(n1):
-                back[k].append(partial(nn[k][i], errs[-1][j]))
-        temp = []
-        for i in range(n1):
-            total = 0
-            for j in range(n0):
-                total += weights[k][j * len(nn[j]) + i] * errs[-1][j]
-            temp.append(total * divsigmoid(y[k-1][i]))
-        errs.append(temp)
-    n1 = len(nn[0])
-    n0 = len(ys[0])
-    for j in range(n0):
-        for i in range(n1):
-            back[0].append(partial(nn[0][i], errs[-1][j]))
-    for i in range(len(back)):
-        s = math.sqrt(dot(back[i], back[i]))
-        if s != 0:
-            k = [j/s * .01 for j in back[i]]
-            for j in range(len(back[i])):
-                weights[i][j] += k[j]
+    errs = error(nn, ys, weights, output)[::-1]
+    partials = update(nn, errs)
+    for k in range(len(weights)):
+        s = math.sqrt(dot(partials[k], partials[k]))
+        for j in range(len(partials[k])):
+            weights[k][j] += (partials[k][j]/s)*.001
     return weights
 
 def printnn(layers, weights):
@@ -106,10 +98,10 @@ def printnn(layers, weights):
 inputs, outputs, layers, weights = creation(myList)
 weights = [randweights(len(i)) for i in weights]
 for i in range(30000):
-    nn, outputs, y = simulate(inputs[i%len(inputs)], weights, layers)
-    weights = backprop(nn, y, weights, outputs)
+    nn, y = simulate(inputs[i%len(inputs)], weights, layers)
+    weights = backprop(nn, y, weights, outputs[i%len(inputs)])
 printnn(layers, weights)
 for i in range(len(inputs)):
-    nn, outputs, y = simulate(inputs[i], weights, layers)
+    nn, y = simulate(inputs[i], weights, layers)
     print(nn[-1])
 #Alexander Yao, Period 4, 2023
