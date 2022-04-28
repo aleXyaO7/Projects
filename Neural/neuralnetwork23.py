@@ -81,11 +81,28 @@ def error(nn, ys, weights, output):
     for k in range(len(nn)-2, 0, -1):
         for i in range(len(nn[k])):
             for j in range(len(nn[k+1])):
+<<<<<<< HEAD
                 sums.append(weights[k][i*len(nn[k+1])+j] * errs[-1][j])
             temp.append(-divsigmoid(ys[k-1][i]) * sum(sums))
             sums = []
         errs.append(temp)
         temp = []
+=======
+                print(weights, errs)
+                print(weights[k][i*len(nn[k+1])+j], errs[-1][j])
+                input()
+                sums.append(weights[k][i*len(nn[k+1])+j] * errs[-1][j])
+            print(sums)
+            print(divsigmoid(ys[k-1][i]))
+            input()
+            temp.append(divsigmoid(ys[k-1][i]) * sum(sums))
+            sums = []
+        errs.append(temp)
+        temp = []
+    print(errs)
+    print(0, 0, 0)
+    input()
+>>>>>>> 826eccccabb7241a7bb883a4bb2cddc3f5d33d29
     return errs
 
 def update(nn, errs):
@@ -116,6 +133,11 @@ for i in range(30000):
 printnn(layers, weights)
 for i in range(len(inputs)):
     nn, y = simulate(inputs[i], weights, layers)
+<<<<<<< HEAD
     print(inputs[i])
     print(y[-1])
 #Alexander Yao, Period 4, 2023
+=======
+    print(nn[-1])
+#Alexander Yao, Period 4, 2023
+>>>>>>> 826eccccabb7241a7bb883a4bb2cddc3f5d33d29
