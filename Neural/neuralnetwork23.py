@@ -1,5 +1,3 @@
-from http.client import TEMPORARY_REDIRECT
-import sys; args = sys.argv[1:]
 myList = open(args[0], 'r').read().splitlines()
 import math, random
 
