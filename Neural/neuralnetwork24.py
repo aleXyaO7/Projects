@@ -70,7 +70,7 @@ def error(nn, weights, output):
     temp = []
     for k in range(len(nn)-3, 0, -1):
         for i in range(len(nn[k])):
-            temp.append(-divsigmoid(nn[k][i]) * sum([weights[k][i+len(nn[k])*j]*errs[-1][j] for j in range(len(nn[k+1]))]))
+            temp.append(divsigmoid(nn[k][i]) * sum([weights[k][i+len(nn[k])*j]*errs[-1][j] for j in range(len(nn[k+1]))]))
         errs.append(temp)
         temp = []
     return errs
@@ -78,8 +78,8 @@ def error(nn, weights, output):
 def update(nn, errs):
     partials = []
     for k in range(len(nn)-2):
-        partials.append([100*nn[k][i] * errs[k][j] for i in range(len(nn[k])) for j in range(len(errs[k]))])
-    partials.append([100*nn[-1][i] * errs[-1][i] for i in range(len(nn[-1]))])
+        partials.append([100*nn[k][i] * errs[k][j] for j in range(len(errs[k])) for i in range(len(nn[k]))])
+    partials.append([100*nn[-2][i] * errs[-1][i] for i in range(len(nn[-1]))])
     return partials
 
 def backprop(nn, weights, output):
@@ -87,7 +87,8 @@ def backprop(nn, weights, output):
     partials = update(nn, errs)
     for k in range(len(weights)):
         s = math.sqrt(dot(partials[k], partials[k]))
-        partials[k] = [(j/s)*.001 for j in partials[k]]
+        if s != 0:
+            partials[k] = [(j/s)*.1 for j in partials[k]]
         for j in range(len(partials[k])):
             weights[k][j] += partials[k][j]
     return weights
