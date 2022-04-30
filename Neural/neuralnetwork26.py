@@ -40,14 +40,15 @@ def creation(myList):
         inputs.append(tempin)
         outputs.append(tempout)
 
-    layers = [len(inputs[0]), 2, len(outputs[0]), len(outputs[0])]
+    layers = [len(inputs[0]), 3, 3, len(outputs[0]), len(outputs[0])]
     weights = []
-    for i in range(len(layers)-1):
+    for i in range(len(layers)-2):
         weights.append([])
         for j in range(layers[i] * layers[i+1]):
             weights[i].append(randnum())
-    print(weights)
-    input()
+    weights.append([])
+    for j in range(layers[-1]):
+        weights[-1].append(randnum())
     return inputs, outputs, layers, weights
 
 def sigmoid(x):
@@ -87,10 +88,9 @@ def update(nn, errs):
 def backprop(nn, weights, output):
     errs = error(nn, weights, output)[::-1]
     partials = update(nn, errs)
-    print(partials)
     for k in range(len(weights)):
         for j in range(len(partials[k])):
-            weights[k][j] += partials[k][j]
+            weights[k][j] += partials[k][j] * .1
     return weights
 
 def printnn(layers, weights):
@@ -99,7 +99,7 @@ def printnn(layers, weights):
         print(' '.join([str(j) for j in i]))
 
 inputs, outputs, layers, weights = creation(myList)
-for i in range(30000):
+for i in range(len(inputs) * 10000):
     nn = simulate(inputs[i%len(inputs)], weights, layers)
     weights = backprop(nn, weights, outputs[i%len(inputs)])
 printnn(layers, weights)
