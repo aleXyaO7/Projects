@@ -97,7 +97,7 @@ def printnn(layers, weights):
     for i in weights:
         print(' '.join([str(j) for j in i]))
 
-def testcase():
+def testcase(num):
     x, y = random.randint(-15, 15)/10, random.randint(-15, 15)/10
     inputs = [x,y]
     output = .5
@@ -110,7 +110,9 @@ def testcase():
 
 def epoch(weights, layers, n):
     for i in range(n):
-        inputs, outputs = testcase()
+        if n % 10 == 5: inputs, outputs = testcase(-1)
+        elif n % 10 == 6: inputs, outputs = testcase(1)
+        else: inputs, outputs = testcase(0)
         nn = simulate(inputs, weights, layers)
         weights = backprop(nn, weights, outputs)
     return weights
