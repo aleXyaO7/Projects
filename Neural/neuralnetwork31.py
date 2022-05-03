@@ -1,6 +1,23 @@
 import sys; args = sys.argv[1:]
-myList = open(args[0], 'r').read().splitlines()
 import math, random
+
+val, symbol = 0, ''
+
+def cleaninput():
+    global symbol, val
+    exp = args[0][7:]
+    if '=>' in exp:
+        symbol = '>'
+        val = float(exp[2:])
+    elif '<=' in exp:
+        symbol = '<'
+        val = float(exp[2:])
+    elif '>' in exp:
+        symbol = '>'
+        val = float(exp[1:])
+    elif '<' in exp:
+        symbol = '<'
+        val = float(exp[1:])
 
 def randnum():
     return random.randint(1, 1000)/1000
@@ -21,33 +38,17 @@ def simulate(inputs, weights, layers):
     
     return nn
 
-def creation(myList):
-    inputs = []
-    outputs = []
-
-    for i in myList:
-        insize = i.split(' ')
-        flag = False
-        tempin = []
-        tempout = []
-        for j in insize:
-            if j == '=>':
-                flag = True
-            else:
-                if not flag: tempin.append(int(j))
-                else: tempout.append(int(j))
-        tempin.append(1)
-        inputs.append(tempin)
-        outputs.append(tempout)
-
-    layers = [len(inputs[0]), 2, len(outputs[0]), len(outputs[0])]
+def creation():
+    layers = [2, 5, 3, 1, 1]
     weights = []
-    for i in range(len(layers)-1):
+    for i in range(len(layers)-2):
         weights.append([])
         for j in range(layers[i] * layers[i+1]):
             weights[i].append(randnum())
-    
-    return inputs, outputs, layers, weights
+    weights.append([])
+    for j in range(layers[-1]):
+        weights[-1].append(randnum())
+    return layers, weights
 
 def sigmoid(x):
     return 1/(1+pow(math.e, -x))
@@ -86,15 +87,9 @@ def update(nn, errs):
 def backprop(nn, weights, output):
     errs = error(nn, weights, output)[::-1]
     partials = update(nn, errs)
-    print(weights)
-    print(nn)
-    print(errs)
-    print(partials)
     for k in range(len(weights)):
         for j in range(len(partials[k])):
             weights[k][j] += partials[k][j] * .1
-    print(weights)
-    input()
     return weights
 
 def printnn(layers, weights):
@@ -102,17 +97,31 @@ def printnn(layers, weights):
     for i in weights:
         print(' '.join([str(j) for j in i]))
 
-inputs, outputs, layers, weights = creation(myList)
-weights = [[-0.9732470264729705, 0.348426204020726, 0.26145986904173935, -0.11993306328043118, -0.9482175448030545, -0.9642966865248512, -0.11950686647864406, -0.2226300694186516], [0.4965339139923888, 0.34783509522026734], [-0.10071369681046805]]
-nn = simulate(inputs[0], weights, layers)
-weights = backprop(nn, weights, outputs[0])
-input()
-for i in range(30000):
-    nn = simulate(inputs[i%len(inputs)], weights, layers)
-    weights = backprop(nn, weights, outputs[i%len(inputs)])
-printnn(layers, weights)
-for i in range(len(inputs)):
-    nn = simulate(inputs[i], weights, layers)
-    print(nn)
+def testcase():
+    x, y = random.randint(-15, 15)/10, random.randint(-15, 15)/10
+    inputs = [x,y]
+    output = .5
+    total = x*x + y*y - val
+    if symbol == '>':
+        output += total
+    else:
+        output -= total
+    return inputs, [output]
+
+def epoch(weights, layers, n):
+    for i in range(n):
+        inputs, outputs = testcase()
+        nn = simulate(inputs, weights, layers)
+        weights = backprop(nn, weights, outputs)
+    return weights
+
+def main():
+    cleaninput()
+    layers, weights = creation()
+    weights = epoch(weights, layers, 100000)
+    printnn(layers, weights)
+    nn = simulate([.9, 0], weights, layers)
     print(nn[-1])
+
+main()
 #Alexander Yao, Period 4, 2023
