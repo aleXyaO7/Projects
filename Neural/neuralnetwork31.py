@@ -6,7 +6,7 @@ val, symbol = 0, ''
 def cleaninput():
     global symbol, val
     exp = args[0][7:]
-    if '=>' in exp:
+    if '>=' in exp:
         symbol = '>'
         val = float(exp[2:])
     elif '<=' in exp:
@@ -39,7 +39,7 @@ def simulate(inputs, weights, layers):
     return nn
 
 def creation():
-    layers = [2, 5, 3, 1, 1]
+    layers = [3, 4, 3, 1, 1]
     weights = []
     for i in range(len(layers)-2):
         weights.append([])
@@ -84,12 +84,12 @@ def update(nn, errs):
     partials.append([nn[-2][i] * errs[-1][i] for i in range(len(nn[-1]))])
     return partials
 
-def backprop(nn, weights, output):
+def backprop(nn, weights, output, alpha):
     errs = error(nn, weights, output)[::-1]
     partials = update(nn, errs)
     for k in range(len(weights)):
         for j in range(len(partials[k])):
-            weights[k][j] += partials[k][j] * .1
+            weights[k][j] += partials[k][j] * alpha
     return weights
 
 def printnn(layers, weights):
@@ -97,33 +97,48 @@ def printnn(layers, weights):
     for i in weights:
         print(' '.join([str(j) for j in i]))
 
-def testcase(num):
-    x, y = random.randint(-15, 15)/10, random.randint(-15, 15)/10
-    inputs = [x,y]
+def randcords():
+    return random.randint(-15, 15)/10, random.randint(-15, 15)/10
+
+def specialcords(val):
+    total = random.random() * .4 + val-.2
+    split = random.random() * total
+    x = math.sqrt(split) * (random.randint(0,1) * 2 - 1) -.1
+    y = math.sqrt(total - split) * (random.randint(0,1) * 2 - 1)-.1
+    return x, y
+
+def testcase(x, y):
     output = .5
-    total = x*x + y*y - val
+    total = (x*x + y*y - val)
     if symbol == '>':
         output += total
     else:
         output -= total
-    return inputs, [output]
+    return [output]
 
 def epoch(weights, layers, n):
     for i in range(n):
-        if n % 10 == 5: inputs, outputs = testcase(-1)
-        elif n % 10 == 6: inputs, outputs = testcase(1)
-        else: inputs, outputs = testcase(0)
-        nn = simulate(inputs, weights, layers)
-        weights = backprop(nn, weights, outputs)
+        x, y = randcords()
+        if i % 2 == 0:
+            x, y = specialcords(val)
+        for inputs in [[x,y,1],[x+.1,y,1],[x-.1,y,1],[x,y+.1,1],[x,y-.1,1],[x+.1,y+.1,1],[x-.1,y-.1,1],[x-.1,y+.1,1],[x+.1,y-.1,1]]:
+            outputs = testcase(inputs[0],inputs[1])
+            nn = simulate(inputs, weights, layers)
+            weights = backprop(nn, weights, outputs, (n-i)/n)
     return weights
 
 def main():
     cleaninput()
     layers, weights = creation()
-    weights = epoch(weights, layers, 100000)
+    weights = epoch(weights, layers, 10000)
     printnn(layers, weights)
-    nn = simulate([.9, 0], weights, layers)
-    print(nn[-1])
+    total = 0
+    for i in range(100000):
+        x, y = randcords()
+        nn = simulate([x,y,1], weights, layers)
+        if (testcase(x,y)[0] > val and nn[-1][0] > .5) or (testcase(x,y)[0] < val and nn[-1][0] < .5):
+            total += 1
+    print(total)
 
 main()
 #Alexander Yao, Period 4, 2023
