@@ -129,7 +129,7 @@ def epoch(weights, layers, n):
 
 def createnn():
     layers, weights = creation()
-    weights = epoch(weights, layers, 5000)
+    weights = epoch(weights, layers, 10000)
     total = 0
     for i in range(100000):
         x, y = randcords()
@@ -141,7 +141,7 @@ def createnn():
 def main():
     cleaninput()
     allnn = []
-    for i in range(10):
+    for i in range(1):
         layer, weight, t = createnn()
         allnn.append((t, layer, weight))
     allnn.sort()
