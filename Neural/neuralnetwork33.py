@@ -129,7 +129,7 @@ def epoch(weights, layers, n):
 
 def createnn():
     layers, weights = creation()
-    weights = epoch(weights, layers, 10000)
+    weights = epoch(weights, layers, 5000)
     total = 0
     for i in range(100000):
         x, y = randcords()
@@ -142,19 +142,14 @@ def main():
     cleaninput()
     allnn = []
     for i in range(10):
-        layer, weight, total = createnn()
-        allnn.append((total, layer, weight))
+        layer, weight, t = createnn()
+        allnn.append((t, layer, weight))
     allnn.sort()
-    print(allnn)
-    t, layers, weights = allnn[-1]
+    total, layers, weights = allnn[-1]
     printnn(layers, weights)
-    total = 0
-    for i in range(100000):
-        x, y = randcords()
-        nn = simulate([x,y,1], weights, layers)
-        if (testcase(x,y)[0] > val and nn[-1][0] > .5) or (testcase(x,y)[0] < val and nn[-1][0] < .5):
-            total += 1
     print(total)
+    
+    #printnn(layers, weights)
 
 main()
 #Alexander Yao, Period 4, 2023
