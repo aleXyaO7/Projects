@@ -155,3 +155,4 @@ train()
 reimage()
 output()
 img.save("kmeans.png")
+#Alexander Yao, Period 4, 2023
