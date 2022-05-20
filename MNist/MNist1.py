@@ -5,6 +5,7 @@ from tensorflow import keras
 sys.stdout = open("weights.txt", "w")
 mnist = tf.keras.datasets.mnist
 (x_train, y_train),(x_test, y_test) = mnist.load_data()
+print('start')
 
 def randnum():
     return random.randint(1, 1000)/1000
@@ -50,7 +51,7 @@ def creation(x_train, y_train, x_test, y_test):
         t.append(1)
         testin.append(t)
 
-    layers = [785, 10, 10, 10, 10, 10]
+    layers = [785, 10, 10, 10]
     weights = []
     for i in range(len(layers)-2):
         weights.append([])
@@ -117,9 +118,11 @@ def maxpos(lst):
     return maxp
 
 inputs, outputs, testin, testout, layers, weights = creation(x_train, y_train, x_test, y_test)
+print(0)
 for i in range(len(inputs) * 10):
     nn = simulate(inputs[i%len(inputs)], weights, layers)
     weights = backprop(nn, weights, outputs[i%len(inputs)])
+    print("this is round", i)
 printnn(weights)
 sys.stdout.close()
 total = 0
