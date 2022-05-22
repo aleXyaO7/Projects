@@ -1,92 +1,105 @@
 import numpy as np
-import os
-import logging
-logging.getLogger('tensorflow').setLevel(logging.ERROR)
 import tensorflow as tf
 import tensorflow_datasets as tfds
+import math, sys
 
-(x_train, y_train), (x_test, y_test) = tfds.load('mnist', split=['train', 'test'], 
-                                                  batch_size=-1, as_supervised=True)
+(x_train, y_train), (x_test, y_test) = tfds.load('mnist', split = ['train', 'test'], batch_size = -1, as_supervised=True)
 
-# reshaping
 x_train = tf.reshape(x_train, shape=(x_train.shape[0], 784))
 x_test  = tf.reshape(x_test, shape=(x_test.shape[0], 784))
 
-ds_train = tf.data.Dataset.from_tensor_slices((x_train, y_train))
-# rescaling
-ds_train = ds_train.map(lambda x, y: (tf.cast(x, tf.float32)/255.0, y))
+nshape = x_train.shape[0]
+epochs = 15
+batchsize = 60
+step = nshape//batchsize
 
-class Model(object):
-    def __init__(self, hidden1_size, hidden2_size, device=None):
-        # layer sizes along with input and output
-        self.input_size, self.output_size, self.device = 784, 10, device
-        self.hidden1_size, self.hidden2_size = hidden1_size, hidden2_size
-        self.lr_rate = 1e-03
+ds_train = tf.data.Dataset.from_tensor_slices((x_train, y_train)).map(lambda x, y: (tf.cast(x, tf.float32)/255.0, y)).repeat().shuffle(nshape).batch(batchsize).prefetch(batchsize)
 
-        # weights initializationg
-        self.glorot_init = tf.initializers.glorot_uniform(seed=42)
-        # weights b/w input to hidden1 --> 1
-        self.w_h1 = tf.Variable(self.glorot_init((self.input_size, self.hidden1_size)))
-        # weights b/w hidden1 to hidden2 ---> 2
-        self.w_h2 = tf.Variable(self.glorot_init((self.hidden1_size, self.hidden2_size)))
-        # weights b/w hidden2 to output ---> 3
-        self.w_out = tf.Variable(self.glorot_init((self.hidden2_size, self.output_size)))
+def randnum(): 
+    return tf.initializers.glorot_uniform(seed=42)
 
-        # bias initialization
-        self.b1 = tf.Variable(self.glorot_init((self.hidden1_size,)))
-        self.b2 = tf.Variable(self.glorot_init((self.hidden2_size,)))
-        self.b_out = tf.Variable(self.glorot_init((self.output_size,)))
+def sigmoid(x):
+    return 1/(1+pow(math.e, -x))
 
-        self.variables = [self.w_h1, self.b1, self.w_h2, self.b2, self.w_out, self.b_out]
+def divsigmoid(x):
+    return x*(1-x)
 
+def partial(x, err):
+    return x * err
 
-    def feed_forward(self, x):
+def dot(lst1, lst2):
+    return sum([lst1[i] * lst2[i] for i in range(len(lst1))])
+
+def error(preds, actual):
+    return tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(labels = actual, logits = preds))
+
+class neuralnetwork:
+    def __init__(self, layers, lrate, device='None'):
+        self.layers = layers
+        self.lrate = .001
+        self.device = device
+        self.weights = []
+        self.bias = []
+        self.randomizer = tf.initializers.glorot_uniform(seed=42)
+
+        for i in range(len(layers)-1):
+            self.weights.append(tf.Variable(self.randomizer((self.layers[i], self.layers[i+1]))))
+
+        for i in range(len(layers)-1):
+            self.bias.append(tf.Variable(self.randomizer((self.layers[i+1],))))
+        
+        self.variables = []
+        for i in range(len(self.weights)):
+            self.variables.append(self.weights[i])
+            self.variables.append(self.bias[i])
+    
+    def feedforward(self, x):
         if self.device is not None:
-            with tf.device('gpu:0' if self.device=='gpu' else 'cpu'):
-                # layer1
-                self.layer1 = tf.nn.sigmoid(tf.add(tf.matmul(x, self.w_h1), self.b1))
-                # layer2
-                self.layer2 = tf.nn.sigmoid(tf.add(tf.matmul(self.layer1,
-                                                             self.w_h2), self.b2))
-                # output layer
-                self.output = tf.nn.softmax(tf.add(tf.matmul(self.layer2,
-                                                             self.w_out), self.b_out))
+            with tf.device('gpu:0' if self.device == 'gpu' else 'cpu'):
+                self.nn = []
+                for i in range(len(self.layers)-2):
+                    x = tf.nn.sigmoid(tf.add(tf.matmul(x, self.weights[i]), self.bias[i]))
+                    self.nn.append(x)
+                self.output = tf.nn.softmax(tf.add(tf.matmul(x, self.weights[-1]), self.bias[-1]))
+                self.nn.append(self.output)
         return self.output
 
-    def loss_fn(self, y_pred, y_true):
-        self.loss = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=y_true, 
-                                                                  logits=y_pred)
+    def error(self, preds, actual):
+        self.loss = tf.nn.sparse_softmax_cross_entropy_with_logits(labels = actual, logits = preds)
         return tf.reduce_mean(self.loss)
 
-    def acc_fn(self, y_pred, y_true):
-        y_pred = tf.cast(tf.argmax(y_pred, axis=1), tf.int32)
-        y_true = tf.cast(y_true, tf.int32)
-        predictions = tf.cast(tf.equal(y_true, y_pred), tf.float32)
+    def backprop(self, x, y):
+        opt = tf.keras.optimizers.Adam(learning_rate=self.lrate)
+        with tf.GradientTape() as tp:
+            preds = self.feedforward(x)
+            loss = self.error(preds, y)
+        gradients = tp.gradient(loss, self.variables)
+        opt.apply_gradients(zip(gradients, self.variables))
+
+    def accuracy(self, preds, actual):
+        preds = tf.cast(tf.argmax(preds, axis=1), tf.int32)
+        actual = tf.cast(actual, tf.int32)
+        predictions = tf.cast(tf.equal(actual, preds), tf.float32)
         return tf.reduce_mean(predictions)
 
-    def backward_prop(self, batch_xs, batch_ys):
-        optimizer = tf.keras.optimizers.Adam(learning_rate=self.lr_rate)
-        with tf.GradientTape() as tape:
-            predicted = self.feed_forward(batch_xs)
-            step_loss = self.loss_fn(predicted, batch_ys)
-        grads = tape.gradient(step_loss, self.variables)
-        optimizer.apply_gradients(zip(grads, self.variables))
+nn1 = neuralnetwork([784,512,256,10], .001, 'gpu')
 
-n_shape = x_train.shape[0]
-epochs = 20
-batch_size = 128
+for i in range(epochs):
+    acc = 0.
+    total = 0
+    for (x, y) in ds_train.take(step):
+        pred = nn1.feedforward(x)
+        acc += float(nn1.accuracy(pred,y))/step
+        nn1.backprop(x,y)
+        total += 1
+    print('Epoch:', i)
+    print('Accuracy:', acc)
+    print('Testcases:', total)
 
-ds_train = ds_train.repeat().shuffle(n_shape).batch(batch_size).prefetch(batch_size)
-
-neural_net = Model(512, 256, 'gpu')
-
-for epoch in range(epochs):
-    no_steps = n_shape//batch_size
-    avg_loss = 0.
-    avg_acc = 0.
-    for (batch_xs, batch_ys) in ds_train.take(no_steps):
-        preds = neural_net.feed_forward(batch_xs)
-        avg_loss += float(neural_net.loss_fn(preds, batch_ys)/no_steps) 
-        avg_acc += float(neural_net.acc_fn(preds, batch_ys) /no_steps)
-        neural_net.backward_prop(batch_xs, batch_ys)
-    print(f'Epoch: {epoch}, Training Loss: {avg_loss}, Training ACC: {avg_acc}')
+sys.stdout = open("weights.txt", "w")  
+for i in nn1.weights:
+    for j in i:
+        print(np.array(j), end=' ')
+    print()
+    print()
+sys.stdout.close()
