@@ -1,7 +1,7 @@
 import numpy as np
 import tensorflow as tf
 import tensorflow_datasets as tfds
-import math, sys
+import math, sys, time
 
 (x_train, y_train), (x_test, y_test) = tfds.load('mnist', split = ['train', 'test'], batch_size = -1, as_supervised=True)
 
@@ -11,6 +11,7 @@ x_test  = tf.reshape(x_test, shape=(x_test.shape[0], 784))
 nshape = x_train.shape[0]
 epochs = 15
 batchsize = 60
+testcases = 10000
 step = nshape//batchsize
 
 ds_train = tf.data.Dataset.from_tensor_slices((x_train, y_train)).map(lambda x, y: (tf.cast(x, tf.float32)/255.0, y)).repeat().shuffle(nshape).batch(batchsize).prefetch(batchsize)
@@ -95,6 +96,14 @@ for i in range(epochs):
     print('Epoch:', i)
     print('Accuracy:', acc)
     print('Testcases:', total)
+
+print(time.process_time())
+acc = 0
+for (x, y) in ds_train.take(testcases):
+    pred = nn1.feedforward(x)
+    acc += float(nn1.accuracy(pred,y))/testcases
+print('Final Accuracy:', acc)
+print(time.process_time())
 
 sys.stdout = open("weights.txt", "w")  
 for i in nn1.weights:
