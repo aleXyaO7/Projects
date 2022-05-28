@@ -1,0 +1,33 @@
+import math
+#Alexander Yao, 2023, pd 4
+totals = [0,0,0,0,0,0,0,0,0,0]
+n = [0,0,0,0,0,0,0,0,0,0]
+arms = [0,1,2,3,4,5,6,7,8,9]
+learning = .7
+deter = {1:-5, 2:-4.5, 3:-4, 4:-3.5, 5:-3, 6:-2.5, 7:-2, 8:-1.8, 9:-1.7}
+
+def maxind():
+    maxi = 0
+    maxv = -100000000
+    for i in arms:
+        if maxv < totals[i]/n[i] + learning * math.sqrt(math.log(sum(n), math.e)/n[i]):
+            maxv = totals[i]/n[i] + learning * math.sqrt(math.log(sum(n), math.e)/n[i])
+            maxi = i
+    return maxi
+
+def bandit(k, armpl, val):
+    global totals, n, arms
+    if k == 0:
+        totals = [0,0,0,0,0,0,0,0,0,0]
+        n = [0,0,0,0,0,0,0,0,0,0]
+        arms = [0,1,2,3,4,5,6,7,8,9]
+        return 0
+    if k != 0:
+        totals[armpl] += val
+        n[armpl] += 1
+    if k < 10:
+        return arms[k % len(arms)]
+    else:
+        return maxind()
+
+#Alexander Yao, 2023, pd 4
