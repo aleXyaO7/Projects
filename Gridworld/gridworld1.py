@@ -111,6 +111,7 @@ def cleaninput(lst):
     print()
     print(rewards)
 
+<<<<<<< Updated upstream
 def comps(acts):
     unseen = {*range(leng)}
     for i in rewards:
@@ -142,6 +143,9 @@ def g0(acts):
     for i in range(len(rwds)):
         maxrwd = []
         
+=======
+
+>>>>>>> Stashed changes
 
 cleaninput(args)
 comps(acts)
