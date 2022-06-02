@@ -7,6 +7,8 @@ g = 0
 nbrs = {}
 acts = {}
 rewards = {}
+policy = {}
+comp, rwds = [], []
 
 def cleaninput(lst):
     global leng, w, h, dr, dpr, nbrs, acts, rewards
@@ -38,7 +40,6 @@ def cleaninput(lst):
         acts[i] = set(nbr)
     
     while pointer < len(lst):
-        print(lst[pointer])
         if lst[pointer][0] in 'B':
             if len(lst[pointer]) == 2:
                 ind = int(lst[pointer][1])
@@ -105,9 +106,44 @@ def cleaninput(lst):
                     rewards[int(lst[pointer][1:])] = dr
             
         pointer += 1
+    
     print(acts)
     print()
     print(rewards)
 
+def comps(acts):
+    unseen = {*range(leng)}
+    for i in rewards:
+        unseen.remove(i)
+    seen = set()
+    global comp, rwds
+    while unseen:
+        start = unseen.pop()
+        unseen.add(start)
+        stk = [start]
+        c = [start]
+        r = []
+        while stk:
+            node = stk.pop()
+            unseen.remove(node)
+            seen.add(node)
+            for i in acts[node]:
+                if i not in seen and i not in rewards:
+                    stk.append(i)
+                    c.append(i)
+                if i in rewards:
+                    r.append(i)
+        comp.append(c)
+        rwds.append(r)
+
+def g0(acts):
+    for i in rewards:
+        policy[i] = '*'
+    for i in range(len(rwds)):
+        maxrwd = []
+        
+
 cleaninput(args)
+comps(acts)
+print(comp, rwds)
 #Alexander Yao, 2023, pd 4
