@@ -149,6 +149,7 @@ def comps(acts):
 
 def bfs0(r):
     q = [(r, 0)]
+    print('----------')
     while q:
         node, k = q.pop(0)
         for i in acts[node]:
@@ -176,11 +177,6 @@ def solve0(c, r):
                 maxr.append(i)
             elif rewards[i] == maxv:
                 maxr.append(i)
-        for i in r:
-            if i not in maxr:
-                for j in acts[i]:
-                    acts[j].remove(i)
-                acts[i] = set()
         for i in maxr:
             bfs0(i)
 
@@ -206,6 +202,8 @@ def output():
 cleaninput(args)
 comps(acts)
 g0()
+print(comp, rwds)
+print(policy)
 output()
 
 #Alexander Yao, 2023, pd 4
