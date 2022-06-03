@@ -9,9 +9,23 @@ acts = {}
 rewards = {}
 policy = {}
 comp, rwds = [], []
+qk = {}
+legend = {
+    'UR': 'V',
+    'URD': 'W',
+    'DR': 'S',
+    'RDL': 'T',
+    'DL': 'E',
+    'DLU': 'F',
+    'LU': 'M',
+    'LUR': 'N',
+    'UD': '|',
+    'LR': '-',
+    'URLD': '+',
+}
 
 def cleaninput(lst):
-    global leng, w, h, dr, dpr, nbrs, acts, rewards
+    global leng, w, h, dr, dpr, nbrs, acts, rewards, policy
     pointer = 0
     leng = int(lst[pointer])
     pointer += 1
@@ -38,11 +52,12 @@ def cleaninput(lst):
         if i % w != w - 1: nbr.add(i+1)
         nbrs[i] = nbr
         acts[i] = set(nbr)
+        policy[i] = ('', leng)
     
     while pointer < len(lst):
         if lst[pointer][0] in 'B':
-            if len(lst[pointer]) == 2:
-                ind = int(lst[pointer][1])
+            if lst[pointer][-1] not in 'NSEW':
+                ind = int(lst[pointer][1:])
                 newn = set()
                 for i in nbrs[ind]:
                     if i not in acts[ind]:
@@ -52,8 +67,11 @@ def cleaninput(lst):
                         acts[i].remove(ind)
                 acts[ind] = newn
             else:
-                ind = int(lst[pointer][1])
-                dirs = lst[pointer][2:]
+                p = 1
+                while lst[pointer][p] in '0123456789':
+                    p += 1
+                ind = int(lst[pointer][1:p])
+                dirs = lst[pointer][p:]
                 for i in dirs:
                     if i == 'N' and ind - w in acts:
                         if ind - w in acts[ind]:
@@ -106,48 +124,92 @@ def cleaninput(lst):
                     rewards[int(lst[pointer][1:])] = dr
             
         pointer += 1
-    
-    print(acts)
-    print()
-    print(rewards)
+    qk[-w] = 'D'
+    qk[w] = 'U'
+    qk[-1] = 'R'
+    qk[1] = 'L'
 
-<<<<<<< Updated upstream
 def comps(acts):
     unseen = {*range(leng)}
     for i in rewards:
         unseen.remove(i)
-    seen = set()
     global comp, rwds
     while unseen:
         start = unseen.pop()
-        unseen.add(start)
         stk = [start]
-        c = [start]
-        r = []
+        c = {start}
+        r = set()
         while stk:
             node = stk.pop()
-            unseen.remove(node)
-            seen.add(node)
             for i in acts[node]:
-                if i not in seen and i not in rewards:
+                if i in unseen and i not in rewards:
                     stk.append(i)
-                    c.append(i)
+                    c.add(i)
+                    unseen.remove(i)
                 if i in rewards:
-                    r.append(i)
+                    r.add(i)
         comp.append(c)
         rwds.append(r)
 
-def g0(acts):
+def bfs0(r):
+    q = [(r, 0)]
+    while q:
+        node, k = q.pop(0)
+        for i in acts[node]:
+            if i not in rewards:
+                if policy[i][1] == k + 1 and qk[i-node] not in policy[i][0]:
+                    policy[i] = (policy[i][0] + qk[i-node], policy[i][1])
+                elif policy[i][1] > k + 1:
+                    policy[i] = (qk[i-node], k + 1)
+                    q.append((i, k+1))
+
+def solve0(c, r):
+    if not c:
+        for i in r:
+            policy[i] = '.'
+    elif not r:
+        for i in c:
+            policy[i] = '.'
+    else:
+        maxr = []
+        maxv = 0
+        for i in r:
+            if rewards[i] > maxv:
+                maxv = rewards[i]
+                maxr = []
+                maxr.append(i)
+            elif rewards[i] == maxv:
+                maxr.append(i)
+        for i in r:
+            if i not in maxr:
+                for j in acts[i]:
+                    acts[j].remove(i)
+                acts[i] = set()
+        for i in maxr:
+            bfs0(i)
+
+def g0():
     for i in rewards:
         policy[i] = '*'
     for i in range(len(rwds)):
-        maxrwd = []
-        
-=======
+        solve0(comp[i], rwds[i])
 
->>>>>>> Stashed changes
+def output():
+    for i in range(h):
+        for j in range(w):
+            ind = i * w + j
+            p = set(policy[ind][0])
+            if len(p) == 1: print(policy[ind][0], end = ' ')
+            else:
+                for k in legend:
+                    if not p - set(k):
+                        print(legend[k], end = ' ')
+                        break
+        print()
 
 cleaninput(args)
 comps(acts)
-print(comp, rwds)
+g0()
+output()
+
 #Alexander Yao, 2023, pd 4
