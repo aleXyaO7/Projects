@@ -29,7 +29,7 @@ def cleaninput(lst):
     pointer = 0
     leng = int(lst[pointer])
     pointer += 1
-    if lst[pointer][0] in 'BRG':
+    if lst[pointer][0] in 'BRGbrg':
         for i in range(1, int(math.sqrt(leng)) + 1):
             if leng % i == 0: h = i
         w = leng // h
@@ -38,7 +38,7 @@ def cleaninput(lst):
         h = leng // w
         pointer += 1
     
-    if lst[pointer][0] in 'G':
+    if lst[pointer][0] in 'Gg':
         g = int(lst[pointer][1])
         pointer += 1
     else:
@@ -55,7 +55,7 @@ def cleaninput(lst):
         policy[i] = ('', leng)
     
     while pointer < len(lst):
-        if lst[pointer][0] in 'B':
+        if lst[pointer][0] in 'Bb':
             if lst[pointer][-1] not in 'NSEW':
                 ind = int(lst[pointer][1:])
                 newn = set()
