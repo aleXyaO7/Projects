@@ -25,10 +25,17 @@ legend = {
 }
 
 def cleaninput(lst):
-    global leng, w, h, dr, dpr, nbrs, acts, rewards, policy
+    global leng, w, h, g, dr, dpr, nbrs, acts, rewards, policy
     pointer = 0
     leng = int(lst[pointer])
     pointer += 1
+
+    if len(lst) == 1:
+        w, h = 1, 1
+        acts[0] = set()
+        policy[0] = '.'
+        return
+    
     if lst[pointer][0] in 'BRGbrg':
         for i in range(1, int(math.sqrt(leng)) + 1):
             if leng % i == 0: h = i
@@ -46,8 +53,8 @@ def cleaninput(lst):
         if i % w != w - 1: nbr.add(i+1)
         nbrs[i] = nbr
         acts[i] = set(nbr)
-        policy[i] = ('', leng)
-    
+        policy[i] = ('', 0, leng)
+
     while pointer < len(lst):
         if lst[pointer][0] in 'Bb':
             if lst[pointer][-1] not in 'NSEW':
@@ -74,7 +81,7 @@ def cleaninput(lst):
                         else:
                             acts[ind].add(ind - w)
                             acts[ind - w].add(ind)
-                    elif i == 'W' and ind - 1 in acts:
+                    elif i == 'W' and ind % w != 0:
                         if ind - 1 in acts[ind]:
                             acts[ind].remove(ind - 1)
                             acts[ind - 1].remove(ind)
@@ -88,7 +95,7 @@ def cleaninput(lst):
                         else:
                             acts[ind].add(ind + w)
                             acts[ind + w].add(ind)
-                    elif i == 'E' and ind + 1 in acts:
+                    elif i == 'E' and ind % w != w - 1:
                         if ind + 1 in acts[ind]:
                             acts[ind].remove(ind + 1)
                             acts[ind + 1].remove(ind)
@@ -124,6 +131,9 @@ def cleaninput(lst):
     qk[w] = 'U'
     qk[-1] = 'R'
     qk[1] = 'L'
+    if not rewards:
+        for i in range(leng):
+            policy[i] = '.'
 
 def comps(acts):
     unseen = {*range(leng)}
@@ -148,17 +158,19 @@ def comps(acts):
         rwds.append(r)
 
 def bfs0(r):
-    q = [(r, 0)]
-    print('----------')
+    q = [(r, rewards[r], 0)]
     while q:
-        node, k = q.pop(0)
+        node, rd, k = q.pop(0)
         for i in acts[node]:
             if i not in rewards:
-                if policy[i][1] == k + 1 and qk[i-node] not in policy[i][0]:
-                    policy[i] = (policy[i][0] + qk[i-node], policy[i][1])
-                elif policy[i][1] > k + 1:
-                    policy[i] = (qk[i-node], k + 1)
-                    q.append((i, k+1))
+                if policy[i][2] == k + 1 and rd == policy[i][1] and qk[i-node] not in policy[i][0]:
+                    policy[i] = (policy[i][0] + qk[i-node], rd, policy[i][2])
+                elif policy[i][2] > k + 1 and rd == policy[i][1]:
+                    policy[i] = (qk[i-node], rd, k + 1)
+                    q.append((i, rd, k+1))
+                elif rd > policy[i][1]:
+                    policy[i] = (qk[i-node], rd, k + 1)
+                    q.append((i, rd, k+1))
 
 def solve0(c, r):
     if not c:
@@ -168,23 +180,45 @@ def solve0(c, r):
         for i in c:
             policy[i] = '.'
     else:
-        maxr = []
-        maxv = 0
-        for i in r:
-            if rewards[i] > maxv:
-                maxv = rewards[i]
-                maxr = []
-                maxr.append(i)
-            elif rewards[i] == maxv:
-                maxr.append(i)
-        for i in maxr:
-            bfs0(i)
+        if g == 0:
+            maxr = []
+            maxv = 0
+            for i in r:
+                if rewards[i] > maxv:
+                    maxv = rewards[i]
+                    maxr = []
+                    maxr.append(i)
+                elif rewards[i] == maxv:
+                    maxr.append(i)
+            for i in maxr:
+                bfs0(i)
+        else:
+            for i in r:
+                bfs1(i)
 
 def g0():
     for i in rewards:
         policy[i] = '*'
     for i in range(len(rwds)):
         solve0(comp[i], rwds[i])
+
+def bfs1(r):
+    q = [(r, rewards[r], 0)]
+    seen = {}
+    for i in range(leng):
+        if i in rewards: seen[i] = 10000000000000000
+        else: seen[i] = 0
+    while q:
+        node, rd, k = q.pop(0)
+        tval = rd/(k+1)
+        for i in acts[node]:
+            if i not in rewards and tval >= seen[i]:
+                if tval == policy[i][1] and qk[i-node] not in policy[i][0]:
+                    policy[i] = (policy[i][0] + qk[i-node], policy[i][1], policy[i][2])
+                elif tval > policy[i][1]:
+                    policy[i] = (qk[i-node], tval, k + 1)
+                seen[i] = tval
+                q.append((i, rd, k+1))
 
 def output():
     for i in range(h):
@@ -202,8 +236,6 @@ def output():
 cleaninput(args)
 comps(acts)
 g0()
-print(comp, rwds)
-print(policy)
 output()
 
 #Alexander Yao, 2023, pd 4
