@@ -202,7 +202,7 @@ def output():
             if len(p) == 1: print(policy[ind][0], end = ' ')
             else:
                 for k in legend:
-                    if not p - set(k):
+                    if not (p - set(k) or set(k) - p):
                         print(legend[k], end = ' ')
                         break
         print()
