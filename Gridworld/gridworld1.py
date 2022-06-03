@@ -2,8 +2,8 @@ import sys; args = sys.argv[1:]
 #Alexander Yao, 2023, pd 4
 import math
 leng, w, h = 0, 0, 0
-dr, dpr = 10, -1
-g = 0
+dr, dpr = 12, -1
+g = 1
 nbrs = {}
 acts = {}
 rewards = {}
@@ -37,12 +37,6 @@ def cleaninput(lst):
         w = int(lst[pointer])
         h = leng // w
         pointer += 1
-    
-    if lst[pointer][0] in 'Gg':
-        g = int(lst[pointer][1])
-        pointer += 1
-    else:
-        g = 0
     
     for i in range(leng):
         nbr = set()
@@ -101,6 +95,8 @@ def cleaninput(lst):
                         else:
                             acts[ind].add(ind + 1)
                             acts[ind + 1].add(ind)
+        elif lst[pointer][0] in 'Gg':
+            g = int(lst[pointer][1])
         else:
             if lst[pointer].count(':') == 2:
                 if len(lst[pointer]) == 3:
