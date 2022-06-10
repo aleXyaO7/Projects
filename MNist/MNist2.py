@@ -89,6 +89,8 @@ for i in range(epochs):
     acc = 0.
     total = 0
     for (x, y) in ds_train.take(step):
+        print(x, y)
+        input()
         pred = nn1.feedforward(x)
         acc += float(nn1.accuracy(pred,y))/step
         nn1.backprop(x,y)

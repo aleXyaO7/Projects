@@ -119,7 +119,7 @@ def maxpos(lst):
 
 inputs, outputs, testin, testout, layers, weights = creation(x_train, y_train, x_test, y_test)
 print(0)
-for i in range(len(inputs) * 10):
+for i in range(len(inputs)):
     nn = simulate(inputs[i%len(inputs)], weights, layers)
     weights = backprop(nn, weights, outputs[i%len(inputs)])
     print("this is round", i)
