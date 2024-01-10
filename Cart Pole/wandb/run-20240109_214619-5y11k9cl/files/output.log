@@ -1,0 +1,44 @@
+Moviepy - Building video C:\Users\Alex\OneDrive\Documents\VSC\labs\cart pole\videos\CartPole-v1__Cart Pole (DQN)__500__1704854769\rl-video-episode-0.mp4.
+Moviepy - Writing video C:\Users\Alex\OneDrive\Documents\VSC\labs\cart pole\videos\CartPole-v1__Cart Pole (DQN)__500__1704854769\rl-video-episode-0.mp4
+Moviepy - Done !
+Moviepy - video ready C:\Users\Alex\OneDrive\Documents\VSC\labs\cart pole\videos\CartPole-v1__Cart Pole (DQN)__500__1704854769\rl-video-episode-0.mp4
+Moviepy - Building video C:\Users\Alex\OneDrive\Documents\VSC\labs\cart pole\videos\CartPole-v1__Cart Pole (DQN)__500__1704854769\rl-video-episode-1.mp4.
+Moviepy - Writing video C:\Users\Alex\OneDrive\Documents\VSC\labs\cart pole\videos\CartPole-v1__Cart Pole (DQN)__500__1704854769\rl-video-episode-1.mp4
+t:   0%|                                                                     | 0/31 [00:00<?, ?it/s, now=None]
+Moviepy - Done !
+Moviepy - video ready C:\Users\Alex\OneDrive\Documents\VSC\labs\cart pole\videos\CartPole-v1__Cart Pole (DQN)__500__1704854769\rl-video-episode-1.mp4
+Moviepy - Building video C:\Users\Alex\OneDrive\Documents\VSC\labs\cart pole\videos\CartPole-v1__Cart Pole (DQN)__500__1704854769\rl-video-episode-8.mp4.
+
+Moviepy - Done !
+Moviepy - video ready C:\Users\Alex\OneDrive\Documents\VSC\labs\cart pole\videos\CartPole-v1__Cart Pole (DQN)__500__1704854769\rl-video-episode-8.mp4
+Moviepy - Building video C:\Users\Alex\OneDrive\Documents\VSC\labs\cart pole\videos\CartPole-v1__Cart Pole (DQN)__500__1704854769\rl-video-episode-27.mp4.
+Moviepy - Writing video C:\Users\Alex\OneDrive\Documents\VSC\labs\cart pole\videos\CartPole-v1__Cart Pole (DQN)__500__1704854769\rl-video-episode-27.mp4
+t:   0%|                                                                     | 0/15 [00:00<?, ?it/s, now=None]
+Moviepy - Done !
+
+Moviepy - Building video C:\Users\Alex\OneDrive\Documents\VSC\labs\cart pole\videos\CartPole-v1__Cart Pole (DQN)__500__1704854769\rl-video-episode-64.mp4.
+Moviepy - Writing video C:\Users\Alex\OneDrive\Documents\VSC\labs\cart pole\videos\CartPole-v1__Cart Pole (DQN)__500__1704854769\rl-video-episode-64.mp4
+Moviepy - Done !
+Moviepy - video ready C:\Users\Alex\OneDrive\Documents\VSC\labs\cart pole\videos\CartPole-v1__Cart Pole (DQN)__500__1704854769\rl-video-episode-64.mp4
+Moviepy - Building video C:\Users\Alex\OneDrive\Documents\VSC\labs\cart pole\videos\CartPole-v1__Cart Pole (DQN)__500__1704854769\rl-video-episode-125.mp4.
+Moviepy - Writing video C:\Users\Alex\OneDrive\Documents\VSC\labs\cart pole\videos\CartPole-v1__Cart Pole (DQN)__500__1704854769\rl-video-episode-125.mp4
+Moviepy - Done !
+Moviepy - video ready C:\Users\Alex\OneDrive\Documents\VSC\labs\cart pole\videos\CartPole-v1__Cart Pole (DQN)__500__1704854769\rl-video-episode-125.mp4
+Moviepy - Building video C:\Users\Alex\OneDrive\Documents\VSC\labs\cart pole\videos\CartPole-v1__Cart Pole (DQN)__500__1704854769\rl-video-episode-216.mp4.
+Moviepy - Writing video C:\Users\Alex\OneDrive\Documents\VSC\labs\cart pole\videos\CartPole-v1__Cart Pole (DQN)__500__1704854769\rl-video-episode-216.mp4
+Moviepy - Done !
+Moviepy - video ready C:\Users\Alex\OneDrive\Documents\VSC\labs\cart pole\videos\CartPole-v1__Cart Pole (DQN)__500__1704854769\rl-video-episode-216.mp4
+Moviepy - Building video C:\Users\Alex\OneDrive\Documents\VSC\labs\cart pole\videos\CartPole-v1__Cart Pole (DQN)__500__1704854769\rl-video-episode-343.mp4.
+Moviepy - Writing video C:\Users\Alex\OneDrive\Documents\VSC\labs\cart pole\videos\CartPole-v1__Cart Pole (DQN)__500__1704854769\rl-video-episode-343.mp4
+Moviepy - Done !
+Moviepy - video ready C:\Users\Alex\OneDrive\Documents\VSC\labs\cart pole\videos\CartPole-v1__Cart Pole (DQN)__500__1704854769\rl-video-episode-343.mp4
+Moviepy - Building video C:\Users\Alex\OneDrive\Documents\VSC\labs\cart pole\videos\CartPole-v1__Cart Pole (DQN)__500__1704854769\rl-video-episode-512.mp4.
+Moviepy - Writing video C:\Users\Alex\OneDrive\Documents\VSC\labs\cart pole\videos\CartPole-v1__Cart Pole (DQN)__500__1704854769\rl-video-episode-512.mp4
+Moviepy - Done !
+Moviepy - video ready C:\Users\Alex\OneDrive\Documents\VSC\labs\cart pole\videos\CartPole-v1__Cart Pole (DQN)__500__1704854769\rl-video-episode-512.mp4
+Traceback (most recent call last):
+  File "C:\Users\Alex\OneDrive\Documents\VSC\labs\cart pole\cart_pole.py", line 284, in <module>
+    plot_durations(show_result=True)
+    ^^^^^^^^^^^^^^
+NameError: name 'plot_durations' is not defined
+Complete

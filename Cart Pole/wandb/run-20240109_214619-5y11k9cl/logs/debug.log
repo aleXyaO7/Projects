@@ -1,0 +1,29 @@
+2024-01-09 21:46:19,289 INFO    MainThread:19232 [wandb_setup.py:_flush():76] Current SDK version is 0.16.1
+2024-01-09 21:46:19,289 INFO    MainThread:19232 [wandb_setup.py:_flush():76] Configure stats pid to 19232
+2024-01-09 21:46:19,289 INFO    MainThread:19232 [wandb_setup.py:_flush():76] Loading settings from C:\Users\Alex\.config\wandb\settings
+2024-01-09 21:46:19,289 INFO    MainThread:19232 [wandb_setup.py:_flush():76] Loading settings from C:\Users\Alex\OneDrive\Documents\VSC\labs\cart pole\wandb\settings
+2024-01-09 21:46:19,289 INFO    MainThread:19232 [wandb_setup.py:_flush():76] Loading settings from environment variables: {}
+2024-01-09 21:46:19,289 INFO    MainThread:19232 [wandb_setup.py:_flush():76] Applying setup settings: {'_disable_service': False}
+2024-01-09 21:46:19,291 INFO    MainThread:19232 [wandb_setup.py:_flush():76] Inferring run settings from compute environment: {'program_relpath': 'cart pole\\cart_pole.py', 'program_abspath': 'C:\\Users\\Alex\\OneDrive\\Documents\\VSC\\labs\\cart pole\\cart_pole.py', 'program': 'C:\\Users\\Alex\\OneDrive\\Documents\\VSC\\labs\\cart pole\\cart_pole.py'}
+2024-01-09 21:46:19,291 INFO    MainThread:19232 [wandb_init.py:_log_setup():524] Logging user logs to C:\Users\Alex\OneDrive\Documents\VSC\labs\cart pole\wandb\run-20240109_214619-5y11k9cl\logs\debug.log
+2024-01-09 21:46:19,292 INFO    MainThread:19232 [wandb_init.py:_log_setup():525] Logging internal logs to C:\Users\Alex\OneDrive\Documents\VSC\labs\cart pole\wandb\run-20240109_214619-5y11k9cl\logs\debug-internal.log
+2024-01-09 21:46:19,292 INFO    MainThread:19232 [wandb_init.py:init():564] calling init triggers
+2024-01-09 21:46:19,292 INFO    MainThread:19232 [wandb_init.py:init():571] wandb.init called with sweep_config: {}
+config: {'env_id': 'CartPole-v1', 'exp_name': 'Cart Pole (DQN)', 'seed': 500, 'num_envs': 1, 'learning_rate': 0.0005, 'buffer_size': 10000, 'batch_size': 64, 'train_frequency': 4, 'target_network_frequency': 30, 'gamma': 0.99, 'tau': 0.005, 'start_e': 0.9, 'end_e': 0.05, 'exploration_fraction': 0.15, 'total_timesteps': 600, 'learning_starts': 100, 'save_model': False, 'upload_model': False, 'wandb_project_name': 'Cart Pole', 'wandb_entity': None, 'track': True, 'cuda': True, 'torch_deterministic': True, 'capture_video': True}
+2024-01-09 21:46:19,292 INFO    MainThread:19232 [wandb_init.py:init():614] starting backend
+2024-01-09 21:46:19,292 INFO    MainThread:19232 [wandb_init.py:init():618] setting up manager
+2024-01-09 21:46:19,293 INFO    MainThread:19232 [backend.py:_multiprocessing_setup():105] multiprocessing start_methods=spawn, using: spawn
+2024-01-09 21:46:19,295 INFO    MainThread:19232 [wandb_init.py:init():624] backend started and connected
+2024-01-09 21:46:19,299 INFO    MainThread:19232 [wandb_init.py:init():716] updated telemetry
+2024-01-09 21:46:19,427 INFO    MainThread:19232 [wandb_init.py:init():749] communicating run to backend with 90.0 second timeout
+2024-01-09 21:46:19,931 INFO    MainThread:19232 [wandb_run.py:_on_init():2254] communicating current version
+2024-01-09 21:46:20,281 INFO    MainThread:19232 [wandb_run.py:_on_init():2263] got version response upgrade_message: "wandb version 0.16.2 is available!  To upgrade, please run:\n $ pip install wandb --upgrade"
+
+2024-01-09 21:46:20,281 INFO    MainThread:19232 [wandb_init.py:init():800] starting run threads in backend
+2024-01-09 21:46:21,336 INFO    MainThread:19232 [wandb_run.py:_console_start():2233] atexit reg
+2024-01-09 21:46:21,336 INFO    MainThread:19232 [wandb_run.py:_redirect():2088] redirect: wrap_raw
+2024-01-09 21:46:21,336 INFO    MainThread:19232 [wandb_run.py:_redirect():2153] Wrapping output streams.
+2024-01-09 21:46:21,336 INFO    MainThread:19232 [wandb_run.py:_redirect():2178] Redirects installed.
+2024-01-09 21:46:21,338 INFO    MainThread:19232 [wandb_init.py:init():841] run started, returning control to user process
+2024-01-09 21:46:21,338 INFO    MainThread:19232 [wandb_run.py:_tensorboard_callback():1498] tensorboard callback: runs/CartPole-v1__Cart Pole (DQN)__500__1704854769, True
+2024-01-09 21:58:57,923 WARNING MsgRouterThr:19232 [router.py:message_loop():77] message_loop has been closed

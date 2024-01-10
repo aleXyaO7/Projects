@@ -1,0 +1,45 @@
+{
+    "os": "Windows-10-10.0.22631-SP0",
+    "python": "3.11.7",
+    "heartbeatAt": "2024-01-10T02:46:20.313569",
+    "startedAt": "2024-01-10T02:46:19.286520",
+    "docker": null,
+    "cuda": null,
+    "args": [],
+    "state": "running",
+    "program": "C:\\Users\\Alex\\OneDrive\\Documents\\VSC\\labs\\cart pole\\cart_pole.py",
+    "codePathLocal": "cart_pole.py",
+    "codePath": "cart pole\\cart_pole.py",
+    "git": {
+        "remote": "https://github.com/aleXyaO7/Labs.git",
+        "commit": "5635d4cde24041634ff2af6810c36629f36e95d3"
+    },
+    "email": "theundefeatedalexyao@gmail.com",
+    "root": "C:/Users/Alex/OneDrive/Documents/VSC/Labs",
+    "host": "AlexXPS",
+    "username": "Alex",
+    "executable": "C:\\Users\\Alex\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\\python.exe",
+    "cpu_count": 10,
+    "cpu_count_logical": 12,
+    "cpu_freq": {
+        "current": 1100.0,
+        "min": 0.0,
+        "max": 1100.0
+    },
+    "cpu_freq_per_core": [
+        {
+            "current": 1100.0,
+            "min": 0.0,
+            "max": 1100.0
+        }
+    ],
+    "disk": {
+        "/": {
+            "total": 934.2822227478027,
+            "used": 229.69638061523438
+        }
+    },
+    "memory": {
+        "total": 31.637401580810547
+    }
+}
