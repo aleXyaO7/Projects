@@ -1,0 +1,45 @@
+{
+    "os": "Windows-10-10.0.22631-SP0",
+    "python": "3.9.13",
+    "heartbeatAt": "2024-01-13T15:44:23.851002",
+    "startedAt": "2024-01-13T15:44:23.116257",
+    "docker": null,
+    "cuda": null,
+    "args": [],
+    "state": "running",
+    "program": "C:\\Users\\Alex\\OneDrive\\Documents\\VSC\\labs\\decision transformer\\dt.py",
+    "codePathLocal": "dt.py",
+    "codePath": "decision transformer\\dt.py",
+    "git": {
+        "remote": "https://github.com/aleXyaO7/Labs.git",
+        "commit": "c8cdfcd566f3072471aa227013c53fff697f9160"
+    },
+    "email": "theundefeatedalexyao@gmail.com",
+    "root": "C:/Users/Alex/OneDrive/Documents/VSC/Labs",
+    "host": "AlexXPS",
+    "username": "Alex",
+    "executable": "C:\\Users\\Alex\\AppData\\Local\\Microsoft\\WindowsApps\\PythonSoftwareFoundation.Python.3.9_qbz5n2kfra8p0\\python.exe",
+    "cpu_count": 10,
+    "cpu_count_logical": 12,
+    "cpu_freq": {
+        "current": 1100.0,
+        "min": 0.0,
+        "max": 1100.0
+    },
+    "cpu_freq_per_core": [
+        {
+            "current": 1100.0,
+            "min": 0.0,
+            "max": 1100.0
+        }
+    ],
+    "disk": {
+        "/": {
+            "total": 934.2822227478027,
+            "used": 233.04373931884766
+        }
+    },
+    "memory": {
+        "total": 31.637401580810547
+    }
+}

@@ -1,0 +1,27 @@
+2024-01-13 08:40:23,487 INFO    MainThread:756 [wandb_setup.py:_flush():76] Current SDK version is 0.16.2
+2024-01-13 08:40:23,487 INFO    MainThread:756 [wandb_setup.py:_flush():76] Configure stats pid to 756
+2024-01-13 08:40:23,487 INFO    MainThread:756 [wandb_setup.py:_flush():76] Loading settings from C:\Users\Alex\.config\wandb\settings
+2024-01-13 08:40:23,487 INFO    MainThread:756 [wandb_setup.py:_flush():76] Loading settings from C:\Users\Alex\OneDrive\Documents\VSC\labs\decision transformer\wandb\settings
+2024-01-13 08:40:23,487 INFO    MainThread:756 [wandb_setup.py:_flush():76] Loading settings from environment variables: {}
+2024-01-13 08:40:23,487 INFO    MainThread:756 [wandb_setup.py:_flush():76] Applying setup settings: {'_disable_service': False}
+2024-01-13 08:40:23,489 INFO    MainThread:756 [wandb_setup.py:_flush():76] Inferring run settings from compute environment: {'program_relpath': 'decision transformer\\dt.py', 'program_abspath': 'C:\\Users\\Alex\\OneDrive\\Documents\\VSC\\labs\\decision transformer\\dt.py', 'program': 'C:\\Users\\Alex\\OneDrive\\Documents\\VSC\\labs\\decision transformer\\dt.py'}
+2024-01-13 08:40:23,489 INFO    MainThread:756 [wandb_init.py:_log_setup():526] Logging user logs to C:\Users\Alex\OneDrive\Documents\VSC\labs\decision transformer\wandb\run-20240113_084023-4027e8c8-ab43-4b2b-933b-f24117b5c301\logs\debug.log
+2024-01-13 08:40:23,490 INFO    MainThread:756 [wandb_init.py:_log_setup():527] Logging internal logs to C:\Users\Alex\OneDrive\Documents\VSC\labs\decision transformer\wandb\run-20240113_084023-4027e8c8-ab43-4b2b-933b-f24117b5c301\logs\debug-internal.log
+2024-01-13 08:40:23,490 INFO    MainThread:756 [wandb_init.py:init():566] calling init triggers
+2024-01-13 08:40:23,490 INFO    MainThread:756 [wandb_init.py:init():573] wandb.init called with sweep_config: {}
+config: {'project': 'CORL', 'group': 'DT-D4RL', 'name': 'DT-maze2d-open-v0-c7fabf56', 'embedding_dim': 128, 'num_layers': 3, 'num_heads': 1, 'seq_len': 20, 'episode_len': 1000, 'attention_dropout': 0.1, 'residual_dropout': 0.1, 'embedding_dropout': 0.1, 'max_action': 1.0, 'env_name': 'maze2d-open-v0', 'learning_rate': 0.0001, 'betas': (0.9, 0.999), 'weight_decay': 0.0001, 'clip_grad': 0.25, 'batch_size': 64, 'update_steps': 100000, 'warmup_steps': 10000, 'reward_scale': 0.001, 'num_workers': 4, 'target_returns': (12000.0, 6000.0), 'eval_episodes': 100, 'eval_every': 10000, 'checkpoints_path': None, 'deterministic_torch': False, 'train_seed': 10, 'eval_seed': 42, 'device': 'cuda'}
+2024-01-13 08:40:23,490 INFO    MainThread:756 [wandb_init.py:init():616] starting backend
+2024-01-13 08:40:23,490 INFO    MainThread:756 [wandb_init.py:init():620] setting up manager
+2024-01-13 08:40:23,492 INFO    MainThread:756 [backend.py:_multiprocessing_setup():105] multiprocessing start_methods=spawn, using: spawn
+2024-01-13 08:40:23,494 INFO    MainThread:756 [wandb_init.py:init():628] backend started and connected
+2024-01-13 08:40:23,500 INFO    MainThread:756 [wandb_init.py:init():720] updated telemetry
+2024-01-13 08:40:23,616 INFO    MainThread:756 [wandb_init.py:init():753] communicating run to backend with 90.0 second timeout
+2024-01-13 08:40:24,047 INFO    MainThread:756 [wandb_run.py:_on_init():2254] communicating current version
+2024-01-13 08:40:24,322 INFO    MainThread:756 [wandb_run.py:_on_init():2263] got version response 
+2024-01-13 08:40:24,322 INFO    MainThread:756 [wandb_init.py:init():804] starting run threads in backend
+2024-01-13 08:40:24,636 INFO    MainThread:756 [wandb_run.py:_console_start():2233] atexit reg
+2024-01-13 08:40:24,636 INFO    MainThread:756 [wandb_run.py:_redirect():2088] redirect: wrap_raw
+2024-01-13 08:40:24,636 INFO    MainThread:756 [wandb_run.py:_redirect():2153] Wrapping output streams.
+2024-01-13 08:40:24,636 INFO    MainThread:756 [wandb_run.py:_redirect():2178] Redirects installed.
+2024-01-13 08:40:24,637 INFO    MainThread:756 [wandb_init.py:init():847] run started, returning control to user process
+2024-01-13 08:40:38,020 WARNING MsgRouterThr:756 [router.py:message_loop():77] message_loop has been closed

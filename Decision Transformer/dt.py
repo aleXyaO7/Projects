@@ -16,13 +16,9 @@ import pyrallis
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import torch.optim as optim
-from stable_baselines3.common.buffers import ReplayBuffer
-from torch.utils.tensorboard import SummaryWriter
 from torch.utils.data import DataLoader, IterableDataset
 from tqdm.auto import tqdm, trange
 
-import stable_baselines3 as sb3
 import wandb
 
 @dataclass
@@ -42,7 +38,7 @@ class TrainConfig:
     embedding_dropout: float = 0.1
     max_action: float = 1.0
     # training params
-    env_name: str = "maze2d-open-v0"
+    env_name: str = "kitchen-partial-v0"
     learning_rate: float = 1e-4
     betas: Tuple[float, float] = (0.9, 0.999)
     weight_decay: float = 1e-4
@@ -65,8 +61,6 @@ class TrainConfig:
 
     def __post_init__(self):
         self.name = f"{self.name}-{self.env_name}-{str(uuid.uuid4())[:8]}"
-        if self.checkpoints_path is not None:
-            self.checkpoints_path = os.path.join(self.checkpoints_path, self.name)
 
 
 # general utils
@@ -76,7 +70,6 @@ def set_seed(
     if env is not None:
         env.seed(seed)
         env.action_space.seed(seed)
-    os.environ["PYTHONHASHSEED"] = str(seed)
     np.random.seed(seed)
     random.seed(seed)
     torch.manual_seed(seed)
@@ -453,12 +446,6 @@ def train(config: TrainConfig):
         optim,
         lambda steps: min((steps + 1) / config.warmup_steps, 1),
     )
-    # save config to the checkpoint
-    if config.checkpoints_path is not None:
-        print(f"Checkpoints path: {config.checkpoints_path}")
-        os.makedirs(config.checkpoints_path, exist_ok=True)
-        with open(os.path.join(config.checkpoints_path, "config.yaml"), "w") as f:
-            pyrallis.dump(config, f)
 
     print(f"Total parameters: {sum(p.numel() for p in model.parameters())}")
     trainloader_iter = iter(trainloader)
@@ -534,7 +521,6 @@ def train(config: TrainConfig):
             "state_mean": dataset.state_mean,
             "state_std": dataset.state_std,
         }
-        torch.save(checkpoint, os.path.join(config.checkpoints_path, "dt_checkpoint.pt"))
 
 
 if __name__ == "__main__":

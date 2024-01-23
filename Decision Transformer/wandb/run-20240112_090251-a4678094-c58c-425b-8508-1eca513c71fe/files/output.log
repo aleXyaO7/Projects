@@ -1,0 +1,26 @@
+[34m[1mwandb[39m[22m: [33mWARNING[39m Calling wandb.run.save without any arguments is deprecated.Changes to attributes are automatically persisted.
+Traceback (most recent call last):
+  File "C:\Users\Alex\OneDrive\Documents\VSC\labs\decision transformer\dt.py", line 531, in <module>
+    train()
+  File "C:\Users\Alex\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pyrallis\argparsing.py", line 158, in wrapper_inner
+    response = fn(cfg, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Alex\OneDrive\Documents\VSC\labs\decision transformer\dt.py", line 410, in train
+    dataset = SequenceDataset(
+              ^^^^^^^^^^^^^^^^
+  File "C:\Users\Alex\OneDrive\Documents\VSC\labs\decision transformer\dt.py", line 167, in __init__
+    self.dataset, info = load_d4rl_trajectories(env_name, gamma=1.0)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Alex\OneDrive\Documents\VSC\labs\decision transformer\dt.py", line 136, in load_d4rl_trajectories
+    dataset = gym.make(env_name).get_dataset()
+              ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Alex\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\gymnasium\envs\registration.py", line 741, in make
+    env_spec = _find_spec(id)
+               ^^^^^^^^^^^^^^
+  File "C:\Users\Alex\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\gymnasium\envs\registration.py", line 527, in _find_spec
+    _check_version_exists(ns, name, version)
+  File "C:\Users\Alex\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\gymnasium\envs\registration.py", line 393, in _check_version_exists
+    _check_name_exists(ns, name)
+  File "C:\Users\Alex\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\gymnasium\envs\registration.py", line 370, in _check_name_exists
+    raise error.NameNotFound(
+gymnasium.error.NameNotFound: Environment `maze2d-open` doesn't exist.
