@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+  <script type="text/javascript">
+    document.addEventListener('DOMContentLoaded',function(){
+      fetch('/get-data')
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            let drowsyP = document.getElementById('drowsy_text');
+            drowsyP.innerHTML = data;
+        })
+    })
+    function showAllData()
+    {
+      let req = new XMLHttpRequest();
+      req.onreadystatechange = function(){
+          // document.getElementById("body").innerHTML = req.responseText;
+          document.getElementById("body").innerHTML = req.response;
+      //   document.getElementById("body").innerHTML = 
+       }
+      let url = "http://127.0.0.1:5001/incidents/all";
+      req.open("GET", url, true);
+      req.responseType = "document";
+      req.send();
+
+      location.href = "http://127.0.0.1:5001/incidents/all";
+      location.assign("http://127.0.0.1:5001/incidents/all");
+      // location.replace("http://127.0.0.1:5001/incidents/all");
+
+      // fetch('templates/dataDisplay.html').then(response => response.text()).then(text => document.getElementById('homePage').innerHTML = text);
+
+      // window.location.href = ("dataDisplay.html");
+
+    }
+
+
+</script>
+  <head>
+    <title>Drowsiness Prevention System</title>
+    
+    <link rel="stylesheet" href="../static/style.css">
+  </head>
+  <body id="body">
+    <img id="logo" src="../static/logo.png" class="center">
+    <p></p>
+    <div id="webcam_feed_div">
+      <img id="webcam_feed" src="{{ url_for('video_feed') }}">
+    </div>
+  </body>
+</html>
