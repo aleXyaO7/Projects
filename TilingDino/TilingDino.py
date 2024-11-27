@@ -26,34 +26,59 @@ class TilingDino:
     #
     # @return the list of strings representing the tiling
 
-    def to_string(o1, o2, e1, e2):
-        return o1 + ' ' + o2 + ' ' + e1 + ' ' + e2
-    
-    def to_coords(str):
-        s = str.split(' ')
-        return int(s[0]), int(s[1]), int(s[2]), int(s[3])
+    edges = {}
+    dir = {}
+
+    def recur(self, odd, match, seen):
+        for even in seen:
+            if even in self.edges[odd] and seen[even] == 0:
+                seen[even] = 1
+                if even not in match or self.recur(match[even], match, seen):
+                    match[even] = odd
+                    return True
+        return False
 
     def compute(self, lines):
         odds = set()
         evens = set()
         for r in range(len(lines)):
             for c in range(len(lines[r])):
-                if lines[r][c] == '.':
+                if lines[r][c] == '#':
                     if (r + c) % 2:
                         odds.add((c, r))
                     else:
                         evens.add((c, r))
         
         if len(odds) != len(evens):
-            return 'impossible'
-        
-        start = len(odds)
-        end = 0
+            return ['impossible']
 
-        edges = {}
-        dir = [(0, 1), (0, -1), (1, 0), (-1, 0)]
-
+        self.dir = [(0, 1), (0, -1), (1, 0), (-1, 0)]
+        self.edges = {}
+        match = {}
         for o1, o2 in odds:
-            for d1, d2 in dir:
+            id = str(o1) + ' ' + str(o2)
+            count = 0
+            self.edges[id] = []
+            for d1, d2 in self.dir:
                 if (o1 + d1, o2 + d2) in evens:
-                    edges[]
+                    count += 1
+                    self.edges[id].append(str(o1 + d1) + ' ' + str(o2 + d2))
+            if count == 0: return ['impossible']
+        
+        count = 0
+        for o1, o2 in odds:
+            seen = {}
+            for e1, e2 in evens:
+                seen[str(e1) + ' ' + str(e2)] = 0
+            if self.recur(str(o1) + ' ' + str(o2), match, seen):
+                count += 1
+        
+        if count != len(odds):
+            return ['impossible']
+
+        result = []
+        for even in match:
+            odd = match[even]
+            result.append(odd + ' ' + even)
+        return result
+
