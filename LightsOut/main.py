@@ -21,9 +21,9 @@ def update(r, c):
     for nr, nc in nbrs:
         grid[nr][nc] = 1 - grid[nr][nc]
         if grid[nr][nc] == 1:
-            button_grid[nr][nc].configure(bg='yellow')
-        else:
             button_grid[nr][nc].configure(bg='white')
+        else:
+            button_grid[nr][nc].configure(bg='yellow')
 
 def update_letters():
     global letters_boolean
@@ -45,7 +45,7 @@ def reset():
     global grid, button_grid
     for r in range(rows):
         for c in range(cols):
-            b = Button(window, height=5, width=10, bg="white", command=lambda r = r, c = c : update(r, c))
+            b = Button(window, height=5, width=10, bg="yellow", command=lambda r = r, c = c : update(r, c))
             b.grid(row=r, column=c)
             button_grid[r][c] = b
 
